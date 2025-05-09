@@ -1,0 +1,17 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install terser --no-save && npm run build"
+
+[deploy]
+startCommand = "npm run start"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "on-failure"
+
+[nixpacks]
+nodejs-version = "18"
+install-cmd = "npm install"
+
+[variables]
+NIXPACKS_METADATA = "node"
+NODE_ENV = "production"

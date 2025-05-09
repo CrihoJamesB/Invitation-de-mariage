@@ -32,8 +32,8 @@ export default {
         card: "0 0 25px rgba(0, 0, 0, 0.04)",
       },
       backgroundImage: {
-        "floral-pattern": "url('/src/assets/images/floral-pattern.svg')",
-        "wedding-bg": "url('/src/assets/images/wedding-bg.jpg')",
+        "floral-pattern": "url('/bb.png')",
+        "wedding-bg": "url('/bb.png')",
       },
       borderRadius: {
         xl: "1rem",

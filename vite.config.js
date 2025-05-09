@@ -25,11 +25,15 @@ export default defineConfig({
     // Configuration pour le déploiement
     outDir: "dist",
     assetsDir: "assets",
+    // Assurer que les dépendances sont correctement bundlées
+    commonjsOptions: {
+      include: [/node_modules/],
+    },
   },
   server: {
     // Optimisation du serveur de développement
     hmr: true,
-    port: process.env.PORT || 5173,
+    port: 5173, // Port par défaut pour Vite
     host: true, // Nécessaire pour les plateformes de déploiement
   },
 })

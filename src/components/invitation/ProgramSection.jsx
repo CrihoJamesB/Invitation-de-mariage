@@ -247,11 +247,11 @@ const ProgramSection = ({ className = "" }) => {
       </div>
 
       {/* Styles spécifiques à la timeline */}
-      <style>{`
+      <style jsx>{`
         .timeline-event {
           opacity: 0;
         }
-        
+
         @keyframes timeline-fade-in {
           from {
             opacity: 0;
@@ -262,23 +262,23 @@ const ProgramSection = ({ className = "" }) => {
             transform: translateY(0);
           }
         }
-        
+
         .animate-timeline-fade-in {
           animation: timeline-fade-in 0.6s ease-out forwards;
         }
-        
+
         .timeline-dot {
           transition: all 0.3s ease;
         }
-        
+
         .timeline-event:hover .timeline-dot {
           transform: translate(-50%, 0) scale(1.2);
         }
-        
+
         .pulse-animation {
           animation: pulse 2s infinite;
         }
-        
+
         @keyframes pulse {
           0% {
             transform: scale(0.95);
@@ -293,25 +293,25 @@ const ProgramSection = ({ className = "" }) => {
             box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
           }
         }
-        
+
         .shadow-elegant {
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
         }
-        
+
         .scrollbar-thin::-webkit-scrollbar {
           height: 4px;
         }
-        
+
         .scrollbar-thin::-webkit-scrollbar-track {
           background: rgba(0, 0, 0, 0.05);
           border-radius: 2px;
         }
-        
+
         .scrollbar-thin::-webkit-scrollbar-thumb {
           background: rgba(0, 0, 0, 0.1);
           border-radius: 2px;
         }
-        
+
         .scrollbar-thin {
           scrollbar-width: thin;
           scrollbar-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.05);
@@ -325,4 +325,4 @@ ProgramSection.propTypes = {
   className: PropTypes.string,
 }
 
-export default ProgramSection
+export default ProgramSection 

@@ -43,7 +43,9 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
   };
 
   return (
-    <header className={`relative overflow-hidden min-h-[90vh] flex flex-col justify-center ${className}`}>
+    <header
+      className={`relative overflow-hidden min-h-[90vh] flex flex-col justify-center ${className}`}
+    >
       {/* Arrière-plan décoratif avec effet parallaxe amélioré */}
       <div
         className="absolute inset-0 bg-primary/5 bg-floral-pattern opacity-15 z-0 hardware-accelerated"
@@ -63,22 +65,24 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
       {/* Particules flottantes décoratives */}
       <div className="absolute inset-0 z-0 overflow-hidden">
         {[...Array(10)].map((_, i) => (
-          <div 
+          <div
             key={i}
-            className="absolute w-3 h-3 rounded-full bg-accent/5" 
+            className="absolute w-3 h-3 rounded-full bg-accent/5"
             style={{
-              top: `${10 + Math.random() * 80}%`, 
+              top: `${10 + Math.random() * 80}%`,
               left: `${Math.random() * 100}%`,
               opacity: 0.4 + Math.random() * 0.6,
-              animation: `float-particle ${5 + Math.random() * 10}s infinite ease-in-out`,
-              animationDelay: `${Math.random() * 5}s`
+              animation: `float-particle ${
+                5 + Math.random() * 10
+              }s infinite ease-in-out`,
+              animationDelay: `${Math.random() * 5}s`,
             }}
           />
         ))}
       </div>
 
       {/* En-tête principal */}
-      <div 
+      <div
         className="relative z-10 px-6 py-14 sm:py-20 text-center"
         style={{ opacity: scrollOpacity }}
       >
@@ -123,7 +127,9 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             }`}
             style={getAnimationDelay(2)}
           >
-            {invitationInfo.couple.groom}
+            <span className="text-primary-dark fallback-text">
+              {invitationInfo.couple.groom}
+            </span>
           </h1>
           <div
             className={`flex items-center justify-center my-3 reveal-on-scroll ${
@@ -150,7 +156,9 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             }`}
             style={getAnimationDelay(4)}
           >
-            {invitationInfo.couple.bride}
+            <span className="text-primary-dark fallback-text">
+              {invitationInfo.couple.bride}
+            </span>
           </h1>
         </div>
 
@@ -192,26 +200,45 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
 
         {/* Button scroll down */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-          <button 
+          <button
             className="text-primary opacity-70 hover:opacity-100 transition-opacity"
-            onClick={() => document.getElementById('details').scrollIntoView({ behavior: 'smooth' })}
+            onClick={() =>
+              document
+                .getElementById("details")
+                .scrollIntoView({ behavior: "smooth" })
+            }
             aria-label="Défiler vers le bas"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            <svg
+              className="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="1.5"
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              ></path>
             </svg>
           </button>
         </div>
       </div>
 
       {/* Styles internes */}
-      <style jsx="true">{`
+      <style>{`
         .text-gradient {
-          background: linear-gradient(to right, var(--color-primary-dark), var(--color-primary));
+          background: linear-gradient(to right, #4A5568, #805AD5);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
           color: transparent;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .fallback-text {
+          opacity: 1;
         }
         
         .hardware-accelerated {

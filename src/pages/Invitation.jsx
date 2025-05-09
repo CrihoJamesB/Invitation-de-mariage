@@ -100,12 +100,12 @@ const Invitation = () => {
   const handleNavigationClick = (sectionId) => {
     setActiveSection(sectionId)
     const element = document.getElementById(sectionId)
-    if (element) {
-      window.scrollTo({
-        top: element.offsetTop - 60, // Ajustement pour la navigation
-        behavior: "smooth",
-      })
-    }
+      if (element) {
+        window.scrollTo({
+          top: element.offsetTop - 60, // Ajustement pour la navigation
+          behavior: "smooth",
+        })
+      }
   }
 
   // Afficher un écran de chargement

@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import {
   BrowserRouter as Router,
   Routes,
@@ -9,27 +9,44 @@ import {
 // Pages
 import Invitation from "./pages/Invitation"
 import GuestManagement from "./pages/GuestManagement"
+import LandingPage from "./pages/LandingPage"
 
 /**
  * Composant principal de l'application
  * Configure les routes et la structure de base
  */
 const App = () => {
+  // Optimisation des performances et expérience utilisateur
+  useEffect(() => {
+    // Préchargement des polices critiques
+    const preloadFonts = () => {
+      const fontUrls = [
+        "https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap",
+        "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap",
+      ]
+
+      fontUrls.forEach((url) => {
+        const link = document.createElement("link")
+        link.rel = "preload"
+        link.as = "style"
+        link.href = url
+        document.head.appendChild(link)
+      })
+    }
+
+    preloadFonts()
+  }, [])
+
   return (
     <Router>
       <Routes>
-        {/* Page d'accueil - redirection vers la gestion des invités */}
+        {/* Page d'accueil publique optimisée pour SEO */}
         <Route
           path="/"
-          element={
-            <Navigate
-              to="/admin"
-              replace
-            />
-          }
+          element={<LandingPage />}
         />
 
-        {/* Interface d'administration */}
+        {/* Interface d'administration pour la gestion des invités */}
         <Route
           path="/admin"
           element={<GuestManagement />}

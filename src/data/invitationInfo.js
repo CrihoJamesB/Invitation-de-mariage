@@ -11,13 +11,13 @@ export const invitationInfo = {
   // Informations sur l'événement
   event: {
     date: "31 Mai 2025",
-    time: "14:00",
+    time: "19h00",
     venue: "Salle de fête Néema",
     address: "Avenue INGA, N° 1",
     location: "Commune de Bandalungwa, Quartier Adoula",
     city: "Kinshasa",
     country: "Congo-Kinshasa",
-    reference: "Terrain municipal",
+    reference: "Banque du sang",
   },
 
   // Informations sur les familles
@@ -33,27 +33,27 @@ export const invitationInfo = {
   // Programme de la journée
   schedule: [
     {
-      time: "14:00",
+      time: "19h00",
       title: "Accueil des invités",
       description: "Arrivée et installation des invités",
     },
     {
-      time: "15:00",
+      time: "19h30",
       title: "Cérémonie",
       description: "Célébration de notre union",
     },
     {
-      time: "16:30",
+      time: "20h30",
       title: "Cocktail",
       description: "Photos et rafraîchissements",
     },
     {
-      time: "18:00",
+      time: "21h30",
       title: "Dîner",
       description: "Repas et festivités",
     },
     {
-      time: "20:00",
+      time: "23h00",
       title: "Soirée dansante",
       description: "Célébration jusqu'au bout de la nuit",
     },

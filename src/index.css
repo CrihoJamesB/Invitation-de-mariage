@@ -19,6 +19,7 @@
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; /* Empêcher le défilement horizontal */
   }
   
   /* Styles des headings */
@@ -34,6 +35,14 @@
   /* Désactiver le surlignement sur les appareils mobiles */
   * {
     -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Optimisation pour les performances d'animation */
+  .hardware-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform, opacity;
   }
 }
 
@@ -98,6 +107,28 @@
     @apply opacity-0 translate-y-4;
     animation: slideUp 0.5s ease-out forwards;
   }
+  
+  /* Animations à l'intersection */
+  .reveal-on-scroll {
+    @apply opacity-0 translate-y-6 transition-all duration-700 ease-out;
+  }
+  
+  .reveal-on-scroll.is-revealed {
+    @apply opacity-100 translate-y-0;
+  }
+  
+  /* Animation de délai séquentiel */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-400 { animation-delay: 400ms; }
+  .delay-500 { animation-delay: 500ms; }
+  
+  /* Effet de carte en verre */
+  .glass-card {
+    @apply backdrop-blur-md bg-white/70 border border-primary/10 shadow-elegant;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
 }
 
 /* Styles d'accessibilité */
@@ -143,6 +174,7 @@
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   /* Support pour les médias Safari */
@@ -151,4 +183,36 @@
       padding-bottom: max(16px, env(safe-area-inset-bottom));
     }
   }
+  
+  /* Effet parallaxe optimisé */
+  .parallax-slow {
+    transition: transform 0.4s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+  
+  .parallax-medium {
+    transition: transform 0.3s cubic-bezier(0.2, 0, 0.2, 1);
+  }
+  
+  /* Effet de surbrillance dorée pour des éléments spéciaux */
+  .golden-glow {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+  }
+}
+
+/* Animation de défilement horizontal infini */
+@keyframes scrollX {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+.scroll-x-infinite {
+  animation: scrollX 25s linear infinite;
+}
+
+/* Variables root pour les couleurs principales */
+:root {
+  --color-primary: #8B5D33;
+  --color-secondary: #F5EFE6;
+  --color-accent: #D4AF37;
+  --color-highlight: #FAF3E0;
 }

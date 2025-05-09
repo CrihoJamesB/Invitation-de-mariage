@@ -10,6 +10,10 @@ import {
 import Invitation from "./pages/Invitation"
 import GuestManagement from "./pages/GuestManagement"
 import LandingPage from "./pages/LandingPage"
+import AdminLogin from "./pages/AdminLogin"
+
+// Composants
+import ProtectedRoute from "./components/auth/ProtectedRoute"
 
 /**
  * Composant principal de l'application
@@ -46,10 +50,20 @@ const App = () => {
           element={<LandingPage />}
         />
 
-        {/* Interface d'administration pour la gestion des invités */}
+        {/* Route de connexion à l'administration */}
+        <Route
+          path="/admin-login"
+          element={<AdminLogin />}
+        />
+
+        {/* Interface d'administration pour la gestion des invités (protégée) */}
         <Route
           path="/admin"
-          element={<GuestManagement />}
+          element={
+            <ProtectedRoute>
+              <GuestManagement />
+            </ProtectedRoute>
+          }
         />
 
         {/* Invitation personnalisée par invité */}

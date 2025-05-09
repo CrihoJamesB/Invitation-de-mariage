@@ -90,7 +90,15 @@ const GuestListItem = ({
               {guest.name}
             </h3>
             <div className="flex items-center mt-1">
-              <span className="text-muted text-sm">Groupe: {group}</span>
+              <span className="flex items-center text-muted text-sm">
+                Table:
+                <span
+                  className="ml-1 px-2 py-0.5 rounded-full text-white font-medium"
+                  style={{ backgroundColor: tableColor }}
+                >
+                  {group}
+                </span>
+              </span>
               <span className="mx-2 text-primary/20">•</span>
               <span className="text-muted text-sm">
                 {guest.count > 1 ? `${guest.count} personnes` : "1 personne"}
@@ -203,6 +211,7 @@ const GuestListItem = ({
                   logoSize={40}
                   title={guest.name}
                   tableColor={tableColor}
+                  caption={`Table ${group}`}
                 />
               </div>
 

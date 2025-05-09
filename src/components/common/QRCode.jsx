@@ -43,45 +43,161 @@ const QRCode = ({
   const downloadQRCode = () => {
     if (!canvasRef) return
 
-    // Créer un canvas temporaire pour l'image complète avec titre
-    const tempCanvas = document.createElement("canvas")
-    const padding = 20 // Espacement autour du QR code
-    const titleHeight = title ? 40 : 0 // Hauteur pour le titre
+    try {
+      // Définir un facteur de résolution pour une meilleure qualité
+      const scaleFactor = 3
 
-    // Définir les dimensions du canvas
-    tempCanvas.width = size + padding * 2
-    tempCanvas.height = size + padding * 2 + titleHeight
+      // Créer un canvas temporaire pour l'image complète avec titre
+      const tempCanvas = document.createElement("canvas")
+      const padding = 30 * scaleFactor // Espacement autour du QR code
+      const titleHeight = title ? 60 * scaleFactor : 0 // Hauteur pour le titre
 
-    const ctx = tempCanvas.getContext("2d")
+      // Définir les dimensions du canvas avec une haute résolution
+      tempCanvas.width = size * scaleFactor + padding * 2
+      tempCanvas.height = size * scaleFactor + padding * 2 + titleHeight
 
-    // Fond blanc
-    ctx.fillStyle = "#ffffff"
-    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+      const ctx = tempCanvas.getContext("2d")
 
-    // Ajouter un titre si présent
-    if (title) {
-      ctx.fillStyle = qrCodeColor
-      ctx.font = "bold 16px Arial"
-      ctx.textAlign = "center"
-      ctx.fillText(title, tempCanvas.width / 2, 25)
+      // Fond blanc
+      ctx.fillStyle = "#ffffff"
+      ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+
+      // Dessiner une bordure décorative
+      const borderWidth = 8 * scaleFactor
+      ctx.strokeStyle = qrCodeColor
+      ctx.lineWidth = borderWidth
+      ctx.strokeRect(
+        borderWidth / 2,
+        borderWidth / 2,
+        tempCanvas.width - borderWidth,
+        tempCanvas.height - borderWidth
+      )
+
+      // Ajouter un titre plus élégant si présent
+      if (title) {
+        // Titre principal
+        ctx.fillStyle = qrCodeColor
+        ctx.font = `bold ${24 * scaleFactor}px Arial`
+        ctx.textAlign = "center"
+        ctx.fillText(title, tempCanvas.width / 2, 35 * scaleFactor)
+
+        // Sous-titre
+        ctx.font = `${14 * scaleFactor}px Arial`
+        ctx.fillText(
+          "Invitation au mariage de Fiston & Vino",
+          tempCanvas.width / 2,
+          52 * scaleFactor
+        )
+      }
+
+      // Dessiner le QR code avec une meilleure résolution
+      const qrScale = scaleFactor
+      ctx.drawImage(
+        canvasRef,
+        padding,
+        titleHeight + padding,
+        size * qrScale,
+        size * qrScale
+      )
+
+      // Dessiner une déco florale autour de l'image (simple et élégant)
+      ctx.fillStyle = `${qrCodeColor}50`
+      const centerX = tempCanvas.width / 2
+      const centerY = tempCanvas.height - 20 * scaleFactor
+
+      // Petite déco florale en bas
+      const flowerSize = 12 * scaleFactor
+
+      // Motif simple
+      for (let i = 0; i < 5; i++) {
+        const angle = (i / 5) * Math.PI * 2
+        const x = centerX + Math.cos(angle) * flowerSize * 3
+        const y = centerY + Math.sin(angle) * flowerSize * 2
+
+        ctx.beginPath()
+        ctx.arc(x, y, flowerSize, 0, Math.PI * 2)
+        ctx.fill()
+      }
+
+      // Convertir en URL de données et télécharger avec haute qualité
+      const dataURL = tempCanvas.toDataURL("image/png", 1.0)
+
+      // Vérifier si on est sur un appareil mobile (pour gérer le téléchargement différemment)
+      const isMobile =
+        /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        )
+
+      if (isMobile) {
+        // Sur mobile, ouvrir l'image dans un nouvel onglet pour permettre le téléchargement manuel
+        const newTab = window.open()
+        if (newTab) {
+          newTab.document.write(`
+            <html>
+              <head>
+                <title>QR Code - ${title || "Invitation"}</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                  body { text-align: center; font-family: Arial; padding: 20px; }
+                  img { max-width: 100%; height: auto; margin-bottom: 20px; }
+                  p { color: #666; margin-bottom: 20px; }
+                </style>
+              </head>
+              <body>
+                <h2>QR Code - ${title || "Invitation"}</h2>
+                <img src="${dataURL}" alt="QR Code">
+                <p>Appuyez longuement sur l'image et sélectionnez "Enregistrer l'image" pour télécharger</p>
+              </body>
+            </html>
+          `)
+          newTab.document.close()
+        }
+      } else {
+        // Sur desktop, télécharger directement
+        const downloadLink = document.createElement("a")
+        downloadLink.href = dataURL
+        downloadLink.download = `invitation-${
+          title.replace(/\s+/g, "-") || "qrcode"
+        }.png`
+        downloadLink.click()
+      }
+
+      // Afficher une indication de succès
+      const successIndicator = document.createElement("div")
+      successIndicator.style.position = "fixed"
+      successIndicator.style.top = "20px"
+      successIndicator.style.left = "50%"
+      successIndicator.style.transform = "translateX(-50%)"
+      successIndicator.style.padding = "10px 20px"
+      successIndicator.style.background = "#4CAF50"
+      successIndicator.style.color = "white"
+      successIndicator.style.borderRadius = "4px"
+      successIndicator.style.zIndex = "9999"
+      successIndicator.style.opacity = "0"
+      successIndicator.style.transition = "opacity 0.3s ease"
+      successIndicator.textContent = isMobile
+        ? "QR Code ouvert dans un nouvel onglet"
+        : "QR Code téléchargé"
+
+      document.body.appendChild(successIndicator)
+
+      // Animation de l'indicateur
+      setTimeout(() => {
+        successIndicator.style.opacity = "1"
+      }, 100)
+
+      setTimeout(() => {
+        successIndicator.style.opacity = "0"
+        setTimeout(() => {
+          document.body.removeChild(successIndicator)
+        }, 300)
+      }, 3000)
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du QR code:", error)
+      alert(
+        "Une erreur est survenue lors du téléchargement. Veuillez réessayer."
+      )
     }
-
-    // Dessiner le QR code
-    ctx.drawImage(canvasRef, padding, titleHeight + padding, size, size)
-
-    // Ajouter une bordure de couleur
-    ctx.strokeStyle = qrCodeColor
-    ctx.lineWidth = 2
-    ctx.strokeRect(5, 5, tempCanvas.width - 10, tempCanvas.height - 10)
-
-    // Convertir en URL de données et télécharger
-    const dataURL = tempCanvas.toDataURL("image/png")
-    const downloadLink = document.createElement("a")
-    downloadLink.href = dataURL
-    downloadLink.download = `invitation-${
-      title.replace(/\s+/g, "-") || "qrcode"
-    }.png`
-    downloadLink.click()
   }
 
   // Ajouter le logo au QR code après le rendu si un logo est fourni

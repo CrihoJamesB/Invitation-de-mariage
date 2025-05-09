@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-family: 'Poppins', system-ui, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    color: theme('colors.gray.800');
+    background-color: theme('colors.gray.50');
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Classes personnalisées pour les animations */
+  .transition-standard {
+    @apply transition duration-300 ease-in-out;
+  }
+
+  /* Classes pour les entrées/sorties d'éléments */
+  .fade-in {
+    @apply opacity-0 transition-opacity duration-300;
+  }
+  .fade-in.active {
+    @apply opacity-100;
+  }
+
+  /* Classes pour les effets de survol améliorés */
+  .hover-lift {
+    @apply transition-transform duration-300 ease-out;
+  }
+  .hover-lift:hover {
+    @apply transform -translate-y-1;
+  }
+}
+
+/* Styles d'accessibilité */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Styles d'impression pour optimiser le rendu sur papier */
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+  
+  button, 
+  .no-print {
+    display: none !important;
+  }
+  
+  a {
+    text-decoration: none !important;
+    color: black !important;
+  }
+}

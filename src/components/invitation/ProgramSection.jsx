@@ -148,16 +148,16 @@ const ProgramSection = ({ className = "" }) => {
                           ? "Fin"
                           : `Étape ${index + 1}`}
                       </span>
-                    </div>
+                        </div>
                     <h3 className="font-medium text-lg text-primary-dark mb-2">
                       {event.title}
                     </h3>
                     <p className="text-muted text-sm">{event.description}</p>
-                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
+        </div>
 
           {/* Version desktop - timeline horizontale */}
           <div className="hidden md:block w-full">

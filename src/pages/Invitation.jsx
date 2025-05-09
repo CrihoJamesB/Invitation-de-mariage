@@ -130,8 +130,8 @@ const Invitation = () => {
             className="absolute w-24 h-24 text-primary animate-spin"
             viewBox="0 0 100 100"
             fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
+              stroke="currentColor"
+              strokeWidth="4"
             strokeDasharray="69 200"
           >
             <circle
@@ -147,7 +147,7 @@ const Invitation = () => {
               fill="currentColor"
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
+          </svg>
           </div>
         </div>
         <p className="text-primary-dark font-elegant text-2xl animate-pulse mb-2">
@@ -201,68 +201,68 @@ const Invitation = () => {
     accueil: (
       <svg
         className="w-5 h-5 mb-1"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-        ></path>
-      </svg>
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  ></path>
+                </svg>
     ),
     details: (
-      <svg
+                <svg
         className="w-5 h-5 mb-1"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-        ></path>
-      </svg>
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
     ),
     programme: (
-      <svg
+                <svg
         className="w-5 h-5 mb-1"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-        ></path>
-      </svg>
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
     ),
     lieu: (
-      <svg
+                <svg
         className="w-5 h-5 mb-1"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-        ></path>
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth="1.5"
-          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-        ></path>
-      </svg>
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  ></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
     ),
   }
 
@@ -295,26 +295,26 @@ const Invitation = () => {
               >
                 {navigationIcons[section]}
                 <span className="text-xs font-medium capitalize">
-                  {section}
-                </span>
-              </button>
-            ))}
+                {section}
+              </span>
+            </button>
+          ))}
           </div>
         </div>
       </nav>
 
       {/* Conteneur principal avec effet de parallaxe léger */}
       <div className="pt-0 pb-20 sm:pb-0 sm:pt-16 overflow-hidden">
-        {/* Section d'accueil avec l'en-tête */}
-        <div
-          id="accueil"
+      {/* Section d'accueil avec l'en-tête */}
+      <div
+        id="accueil"
           className="min-h-[90vh] flex items-center transition-opacity duration-700"
           style={{ opacity: activeSection === "accueil" ? 1 : 0.8 }}
-        >
+      >
           <div className="w-full">
-            <Header guestInfo={guestInfo} />
+        <Header guestInfo={guestInfo} />
           </div>
-        </div>
+      </div>
 
         {/* Sections du contenu avec effet de fade-in */}
         <div
@@ -322,7 +322,7 @@ const Invitation = () => {
           className="scroll-mt-16 transition-opacity duration-700"
           style={{ opacity: activeSection === "details" ? 1 : 0.8 }}
         >
-          <DetailSection />
+      <DetailSection />
         </div>
 
         <div
@@ -330,7 +330,7 @@ const Invitation = () => {
           className="scroll-mt-16 transition-opacity duration-700"
           style={{ opacity: activeSection === "programme" ? 1 : 0.8 }}
         >
-          <ProgramSection />
+      <ProgramSection />
         </div>
 
         <div
@@ -338,7 +338,7 @@ const Invitation = () => {
           className="scroll-mt-16 transition-opacity duration-700"
           style={{ opacity: activeSection === "lieu" ? 1 : 0.8 }}
         >
-          <LocationSection />
+      <LocationSection />
         </div>
       </div>
 
@@ -370,12 +370,12 @@ const Invitation = () => {
         </div>
         <div className="relative z-10">
           <p className="font-elegant text-2xl mb-3">
-            {invitationInfo.couple.groom} & {invitationInfo.couple.bride}
-          </p>
+          {invitationInfo.couple.groom} & {invitationInfo.couple.bride}
+        </p>
           <div className="w-16 h-1 bg-white/30 mx-auto mb-4"></div>
           <p className="text-sm text-white/80 max-w-md mx-auto leading-relaxed">
-            Nous nous réjouissons de célébrer ce jour spécial avec vous
-          </p>
+          Nous nous réjouissons de célébrer ce jour spécial avec vous
+        </p>
           <div className="flex justify-center gap-4 mt-6 mb-6">
             <button
               className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300"
@@ -415,7 +415,7 @@ const Invitation = () => {
             </button>
           </div>
           <div className="text-xs text-white/50">
-            <p>© {new Date().getFullYear()} - Tous droits réservés</p>
+          <p>© {new Date().getFullYear()} - Tous droits réservés</p>
           </div>
         </div>
       </footer>

@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import PropTypes from "prop-types"
 import { generateGuestId } from "../../data/guests"
+import { invitationInfo } from "../../data/invitationInfo"
 import Button from "../common/Button"
 import QRCode from "../common/QRCode"
 import Card from "../common/Card"
@@ -26,6 +27,20 @@ const GuestListItem = ({
   // Génération de l'ID unique et de l'URL d'invitation
   const guestId = generateGuestId(group, guest.name)
   const invitationUrl = `${baseUrl}/invitation/${guestId}`
+
+  // Récupérer la couleur de la table associée au groupe (table) de l'invité
+  const getTableColor = () => {
+    if (!group) return "#8B5D33" // Couleur par défaut
+
+    const table = invitationInfo.tables.find(
+      (table) => table.name.toLowerCase() === group.toLowerCase()
+    )
+
+    return table ? table.color : "#8B5D33" // Couleur de la table ou couleur par défaut
+  }
+
+  // Couleur associée à la table de l'invité
+  const tableColor = getTableColor()
 
   // Construit l'URL de partage WhatsApp
   const getWhatsAppShareUrl = () => {
@@ -187,13 +202,14 @@ const GuestListItem = ({
                   logoSrc="/src/assets/images/wedding-logo.png"
                   logoSize={40}
                   title={guest.name}
+                  tableColor={tableColor}
                 />
               </div>
 
               <div className="flex-grow space-y-4">
                 <div>
                   <h4 className="font-sans text-sm font-medium text-primary-dark">
-                    Lien d'invitation
+                    Lien d&apos;invitation
                   </h4>
                   <p className="text-xs text-muted break-all mt-1">
                     {invitationUrl}

@@ -69,31 +69,31 @@ const DetailSection = ({ className = "" }) => {
               {/* Décoration supplémentaire */}
               <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden">
                 <div className="bg-primary/10 rotate-45 transform origin-bottom-left w-32 h-32 -translate-y-12 translate-x-6"></div>
-              </div>
+            </div>
               <div className="absolute -bottom-16 -left-16 w-32 h-32 rounded-full bg-gradient-radial from-primary/5 to-transparent blur-xl group-hover:opacity-80 transition-opacity"></div>
 
               <div className="text-center relative z-10">
                 <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-br from-primary/20 to-primary/30 mb-5 shadow-inner group-hover:scale-110 transition-transform duration-500">
                   <svg
                     className="w-8 h-8 text-primary transform group-hover:rotate-12 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    ></path>
-                  </svg>
-                </div>
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  ></path>
+                </svg>
+              </div>
                 <h3 className="font-elegant text-2xl text-primary-dark mb-4 relative inline-block">
-                  Date & Heure
+                Date & Heure
                   <span className="absolute bottom-0 left-0 w-full h-0.5 scale-0 group-hover:scale-100 bg-gradient-to-r from-transparent via-primary/50 to-transparent transition-transform duration-500"></span>
-                </h3>
+              </h3>
                 <p className="text-primary-dark font-semibold text-xl mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent inline-block">
-                  {invitationInfo.event.date}
+                {invitationInfo.event.date}
                 </p>
                 <p className="text-muted">à {invitationInfo.event.time}</p>
 
@@ -168,11 +168,11 @@ const DetailSection = ({ className = "" }) => {
                     <div>
                       <p className="text-sm text-primary-dark font-medium">
                         Arrivée recommandée à partir de 19h
-                      </p>
-                      <p className="text-xs text-muted mt-1">
+                </p>
+                <p className="text-xs text-muted mt-1">
                         Merci d&apos;arriver à l&apos;avance pour faciliter
                         l&apos;organisation
-                      </p>
+                </p>
                     </div>
                   </div>
                 </div>
@@ -190,43 +190,43 @@ const DetailSection = ({ className = "" }) => {
               {/* Décoration supplémentaire */}
               <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden">
                 <div className="bg-primary/10 rotate-45 transform origin-bottom-left w-32 h-32 -translate-y-12 translate-x-6"></div>
-              </div>
+            </div>
               <div className="absolute -bottom-16 -left-16 w-32 h-32 rounded-full bg-gradient-radial from-accent/5 to-transparent blur-xl group-hover:opacity-80 transition-opacity"></div>
 
               <div className="text-center relative z-10">
                 <div className="inline-flex items-center justify-center w-18 h-18 rounded-full bg-gradient-to-br from-primary/20 to-primary/30 mb-5 shadow-inner group-hover:scale-110 transition-transform duration-500">
                   <svg
                     className="w-8 h-8 text-primary transform group-hover:rotate-12 transition-transform"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    ></path>
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    ></path>
-                  </svg>
-                </div>
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  ></path>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="1.5"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
+              </div>
                 <h3 className="font-elegant text-2xl text-primary-dark mb-4 relative inline-block">
-                  Lieu
+                Lieu
                   <span className="absolute bottom-0 left-0 w-full h-0.5 scale-0 group-hover:scale-100 bg-gradient-to-r from-transparent via-primary/50 to-transparent transition-transform duration-500"></span>
-                </h3>
+              </h3>
                 <p className="text-primary-dark font-semibold text-xl mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent inline-block">
-                  {invitationInfo.event.venue}
-                </p>
+                {invitationInfo.event.venue}
+              </p>
                 <p className="text-muted mb-1">
                   {invitationInfo.event.address}
                 </p>
                 <p className="text-sm text-muted">
-                  {invitationInfo.event.location}, {invitationInfo.event.city}
+                {invitationInfo.event.location}, {invitationInfo.event.city}
                 </p>
 
                 {/* Options supplémentaires avec icônes améliorées et effets */}
@@ -329,10 +329,10 @@ const DetailSection = ({ className = "" }) => {
                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
                   clipRule="evenodd"
                 ></path>
-              </svg>
+            </svg>
               <p className="text-primary-dark font-elegant text-xl italic leading-relaxed">
-                {invitationInfo.welcomeMessage}
-              </p>
+              {invitationInfo.welcomeMessage}
+            </p>
             </div>
           </div>
 

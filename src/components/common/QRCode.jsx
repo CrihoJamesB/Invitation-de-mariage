@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import PropTypes from "prop-types"
 import QRCodeLibrary from "qrcode.react"
 
@@ -15,12 +15,14 @@ import QRCodeLibrary from "qrcode.react"
  * @param {number} logoSize - Taille du logo en pixels
  * @param {string} title - Titre à afficher au-dessus du QR code
  * @param {string} caption - Légende à afficher sous le QR code
+ * @param {string} tableColor - Couleur associée à la table de l'invité
+ * @param {string} id - Identifiant unique pour le canvas du QR code
  */
 const QRCode = ({
   value,
   size = 200,
   bgColor = "#ffffff",
-  fgColor = "#8B5D33", // Couleur primaire de notre thème
+  fgColor = "#8B5D33", // Couleur primaire par défaut
   level = "H",
   includeMargin = true,
   className = "",
@@ -28,8 +30,59 @@ const QRCode = ({
   logoSize = 50,
   title = "",
   caption = "",
+  tableColor = "", // Nouvelle prop pour la couleur de la table
+  id = "",
 }) => {
   const [canvasRef, setCanvasRef] = useState(null)
+  const containerRef = useRef(null)
+
+  // Utiliser la couleur de la table si fournie
+  const qrCodeColor = tableColor || fgColor
+
+  // Fonction pour télécharger le QR code avec titre
+  const downloadQRCode = () => {
+    if (!canvasRef) return
+
+    // Créer un canvas temporaire pour l'image complète avec titre
+    const tempCanvas = document.createElement("canvas")
+    const padding = 20 // Espacement autour du QR code
+    const titleHeight = title ? 40 : 0 // Hauteur pour le titre
+
+    // Définir les dimensions du canvas
+    tempCanvas.width = size + padding * 2
+    tempCanvas.height = size + padding * 2 + titleHeight
+
+    const ctx = tempCanvas.getContext("2d")
+
+    // Fond blanc
+    ctx.fillStyle = "#ffffff"
+    ctx.fillRect(0, 0, tempCanvas.width, tempCanvas.height)
+
+    // Ajouter un titre si présent
+    if (title) {
+      ctx.fillStyle = qrCodeColor
+      ctx.font = "bold 16px Arial"
+      ctx.textAlign = "center"
+      ctx.fillText(title, tempCanvas.width / 2, 25)
+    }
+
+    // Dessiner le QR code
+    ctx.drawImage(canvasRef, padding, titleHeight + padding, size, size)
+
+    // Ajouter une bordure de couleur
+    ctx.strokeStyle = qrCodeColor
+    ctx.lineWidth = 2
+    ctx.strokeRect(5, 5, tempCanvas.width - 10, tempCanvas.height - 10)
+
+    // Convertir en URL de données et télécharger
+    const dataURL = tempCanvas.toDataURL("image/png")
+    const downloadLink = document.createElement("a")
+    downloadLink.href = dataURL
+    downloadLink.download = `invitation-${
+      title.replace(/\s+/g, "-") || "qrcode"
+    }.png`
+    downloadLink.click()
+  }
 
   // Ajouter le logo au QR code après le rendu si un logo est fourni
   useEffect(() => {
@@ -58,19 +111,33 @@ const QRCode = ({
   }, [canvasRef, logoSrc, logoSize, size, bgColor])
 
   return (
-    <div className={`flex flex-col items-center ${className}`}>
+    <div
+      className={`flex flex-col items-center ${className}`}
+      ref={containerRef}
+    >
       {title && (
-        <h3 className="text-center font-elegant font-semibold text-lg mb-3 text-primary">
+        <h3
+          className="text-center font-elegant font-semibold text-lg mb-3"
+          style={{ color: qrCodeColor }}
+        >
           {title}
         </h3>
       )}
 
-      <div className="bg-white p-3 rounded-xl shadow-elegant">
+      <div
+        className="bg-white p-3 rounded-xl shadow-elegant"
+        style={{
+          borderColor: qrCodeColor,
+          borderWidth: "2px",
+          borderStyle: "solid",
+        }}
+      >
         <QRCodeLibrary
+          id={id}
           value={value}
           size={size}
           bgColor={bgColor}
-          fgColor={fgColor}
+          fgColor={qrCodeColor}
           level={level}
           includeMargin={includeMargin}
           renderAs="canvas"
@@ -82,9 +149,30 @@ const QRCode = ({
         />
       </div>
 
-      {caption && (
-        <p className="text-center text-sm text-muted mt-3">{caption}</p>
-      )}
+      <div className="flex items-center mt-3 gap-2">
+        {caption && <p className="text-center text-sm text-muted">{caption}</p>}
+
+        <button
+          onClick={downloadQRCode}
+          className="text-xs flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          style={{ color: qrCodeColor, backgroundColor: `${qrCodeColor}15` }}
+        >
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+          Télécharger
+        </button>
+      </div>
     </div>
   )
 }
@@ -101,6 +189,8 @@ QRCode.propTypes = {
   logoSize: PropTypes.number,
   title: PropTypes.string,
   caption: PropTypes.string,
+  tableColor: PropTypes.string,
+  id: PropTypes.string,
 }
 
 export default QRCode

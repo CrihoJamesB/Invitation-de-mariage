@@ -1,0 +1,28 @@
+[phases.setup]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+dependsOn = ["setup"]
+cmds = ["npm ci"]
+cacheDirectories = ["node_modules/.cache"]
+
+[phases.build]
+dependsOn = ["install"]
+cmds = ["npm run build"]
+
+[start]
+cmd = "npx serve -s dist"
+dependsOn = ["build"]
+
+[variables]
+NODE_ENV = "production"
+NODE_OPTIONS = "--max-old-space-size=2048"
+VITE_APP_ENV = "production"
+
+[phases.setup.cache]
+directories = [".npm"]
+
+[start.healthcheck]
+interval = "30s"
+timeout = "5s"
+retries = 3

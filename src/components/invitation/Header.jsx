@@ -57,23 +57,35 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
         }}
       ></div>
 
-      {/* Effet de halo brillant animé */}
+      {/* Effet de halo brillant animé avec particules */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-accent/10 blur-3xl animate-pulse-slow golden-glow"></div>
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-gradient-radial from-accent/20 to-transparent blur-3xl animate-pulse-slow"></div>
+        <div
+          className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-gradient-radial from-primary/10 to-transparent blur-3xl animate-pulse-slow"
+          style={{ animationDelay: "1.5s" }}
+        ></div>
       </div>
 
-      {/* Particules flottantes décoratives */}
+      {/* Particules flottantes décoratives avancées */}
       <div className="absolute inset-0 z-0 overflow-hidden">
-        {[...Array(10)].map((_, i) => (
+        {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-3 h-3 rounded-full bg-accent/5"
+            className={`absolute rounded-full ${
+              i % 3 === 0
+                ? "bg-primary/5"
+                : i % 3 === 1
+                ? "bg-accent/5"
+                : "bg-secondary/5"
+            }`}
             style={{
-              top: `${10 + Math.random() * 80}%`,
+              width: `${Math.random() * 12 + 3}px`,
+              height: `${Math.random() * 12 + 3}px`,
+              top: `${5 + Math.random() * 90}%`,
               left: `${Math.random() * 100}%`,
               opacity: 0.4 + Math.random() * 0.6,
               animation: `float-particle ${
-                5 + Math.random() * 10
+                5 + Math.random() * 15
               }s infinite ease-in-out`,
               animationDelay: `${Math.random() * 5}s`,
             }}
@@ -98,7 +110,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
         </div>
 
         {/* Message d'invitation avec animation progressive */}
-        <div className="mb-8">
+        <div className="mb-10">
           <p
             className={`text-muted font-elegant text-sm sm:text-base tracking-wide reveal-on-scroll ${
               animated ? "is-revealed" : ""
@@ -109,7 +121,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             {invitationInfo.families.brideFamily}
           </p>
           <p
-            className={`text-primary font-sans text-sm sm:text-base tracking-widest uppercase mt-1 reveal-on-scroll ${
+            className={`text-primary font-sans text-sm sm:text-base tracking-widest uppercase mt-2 reveal-on-scroll ${
               animated ? "is-revealed" : ""
             }`}
             style={getAnimationDelay(1)}
@@ -118,61 +130,69 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
           </p>
         </div>
 
-        {/* Noms des mariés avec effet brillant amélioré */}
-        <div className="mb-10 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/10 to-primary/0 blur-xl golden-glow animate-glow-pulse"></div>
+        {/* Noms des mariés avec effet brillant amélioré et carte élégante */}
+        <div className="mb-12 relative backdrop-blur-sm bg-white/5 py-8 px-6 rounded-xl shadow-elegant transform transition-all duration-500 hover:shadow-xl">
+          <div className="absolute inset-0 overflow-hidden rounded-xl">
+            <div className="absolute -inset-x-1/4 -top-1/4 w-150 h-150 bg-gradient-conic from-primary/10 via-accent/5 to-primary/10 opacity-70 animate-slow-spin blur-3xl"></div>
+          </div>
+
           <h1
-            className={`font-cursive text-4xl sm:text-5xl md:text-6xl text-gradient mb-1 select-none hardware-accelerated reveal-on-scroll ${
+            className={`font-cursive text-4xl sm:text-5xl md:text-6xl mb-4 select-none reveal-on-scroll ${
               animated ? "is-revealed" : ""
             }`}
             style={getAnimationDelay(2)}
           >
-            <span className="text-primary-dark fallback-text">
+            <span className="py-2 px-1 text-primary-dark relative">
               {invitationInfo.couple.groom}
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent transform"></span>
             </span>
           </h1>
+
           <div
-            className={`flex items-center justify-center my-3 reveal-on-scroll ${
+            className={`flex items-center justify-center my-4 reveal-on-scroll ${
               animated ? "is-revealed" : ""
             }`}
             style={getAnimationDelay(3)}
           >
             {/* Séparateur avec cœur animé */}
-            <div className="h-px w-12 bg-accent opacity-70"></div>
-            <div className="mx-3 text-accent">
+            <div className="h-px w-16 bg-accent/50"></div>
+            <div className="mx-4 text-accent relative">
               <svg
-                className="w-6 h-6 animate-pulse-slow transform hover:scale-110 transition-transform"
+                className="w-8 h-8 animate-pulse-slow transform hover:scale-110 transition-transform"
                 viewBox="0 0 24 24"
                 fill="currentColor"
               >
                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
               </svg>
+              <div className="absolute -inset-2 bg-accent/5 rounded-full blur-md animate-pulse-slow"></div>
             </div>
-            <div className="h-px w-12 bg-accent opacity-70"></div>
+            <div className="h-px w-16 bg-accent/50"></div>
           </div>
+
           <h1
-            className={`font-cursive text-4xl sm:text-5xl md:text-6xl text-gradient hardware-accelerated reveal-on-scroll ${
+            className={`font-cursive text-4xl sm:text-5xl md:text-6xl select-none reveal-on-scroll ${
               animated ? "is-revealed" : ""
             }`}
             style={getAnimationDelay(4)}
           >
-            <span className="text-primary-dark fallback-text">
+            <span className="py-2 px-1 text-primary-dark relative">
               {invitationInfo.couple.bride}
+              <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent transform"></span>
             </span>
           </h1>
         </div>
 
         {/* Date et lieu avec bordure élégante et animation */}
         <div
-          className={`mb-8 py-4 px-6 mx-auto max-w-sm border-t border-b border-primary/20 reveal-on-scroll backdrop-blur-sm bg-white/5 shadow-sm ${
+          className={`mb-8 py-5 px-6 mx-auto max-w-sm rounded-lg reveal-on-scroll backdrop-blur-sm bg-gradient-to-r from-white/10 via-white/20 to-white/10 shadow-elegant ${
             animated ? "is-revealed" : ""
           }`}
           style={getAnimationDelay(5)}
         >
-          <p className="font-elegant text-lg sm:text-xl text-primary-dark">
+          <p className="font-elegant text-xl sm:text-2xl text-primary-dark mb-1">
             Le {invitationInfo.event.date}
           </p>
-          <p className="font-sans text-sm text-muted mt-1">
+          <p className="font-sans text-sm text-muted">
             à {invitationInfo.event.venue}
           </p>
         </div>
@@ -181,27 +201,27 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
         {guestInfo && (
           <div
             ref={messageRef}
-            className={`mt-8 glass-card p-5 rounded-xl mx-auto max-w-md reveal-on-scroll backdrop-blur-md bg-white/30 shadow-elegant transform transition-all duration-500 hover:-translate-y-1 hover:shadow-lg ${
+            className={`mt-10 p-6 rounded-xl mx-auto max-w-md reveal-on-scroll backdrop-blur-md bg-gradient-to-br from-white/20 to-white/10 shadow-elegant border border-white/10 transform transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
               messageIsVisible ? "is-revealed" : ""
             }`}
             style={getAnimationDelay(6)}
           >
             <p className="font-elegant text-sm sm:text-base text-primary-dark italic relative">
               <span className="absolute -top-4 -left-2 text-accent opacity-30 text-3xl">
-                "
+                &ldquo;
               </span>
               {guestInfo.message}
               <span className="absolute -bottom-4 -right-2 text-accent opacity-30 text-3xl">
-                "
+                &rdquo;
               </span>
             </p>
           </div>
         )}
 
-        {/* Button scroll down */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        {/* Button scroll down avec animation améliorée */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
           <button
-            className="text-primary opacity-70 hover:opacity-100 transition-opacity"
+            className="group flex flex-col items-center justify-center text-primary opacity-70 hover:opacity-100 transition-all"
             onClick={() =>
               document
                 .getElementById("details")
@@ -209,36 +229,33 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             }
             aria-label="Défiler vers le bas"
           >
-            <svg
-              className="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="1.5"
-                d="M19 14l-7 7m0 0l-7-7m7 7V3"
-              ></path>
-            </svg>
+            <span className="text-xs uppercase tracking-widest mb-2 group-hover:transform group-hover:translate-y-1 transition-transform">
+              Découvrir
+            </span>
+            <div className="relative">
+              <svg
+                className="w-10 h-10 animate-bounce-slow"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="1.5"
+                  d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                ></path>
+              </svg>
+              <div className="absolute inset-0 bg-primary/10 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
           </button>
         </div>
       </div>
 
       {/* Styles internes */}
       <style>{`
-        .text-gradient {
-          background: linear-gradient(to right, #4A5568, #805AD5);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          color: transparent;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-        
-        .fallback-text {
-          opacity: 1;
+        .shadow-elegant {
+          box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
         }
         
         .hardware-accelerated {
@@ -246,29 +263,12 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
           will-change: transform;
         }
         
-        .golden-glow {
-          animation: glow-pulse 4s ease-in-out infinite;
-        }
-        
-        .shadow-elegant {
-          box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
-        }
-
         @keyframes float-particle {
           0%, 100% {
             transform: translateY(0) translateX(0);
           }
           50% {
             transform: translateY(-20px) translateX(10px);
-          }
-        }
-        
-        @keyframes glow-pulse {
-          0%, 100% {
-            opacity: 0.3;
-          }
-          50% {
-            opacity: 0.7;
           }
         }
         
@@ -289,12 +289,38 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
           animation: pulse 3s ease-in-out infinite;
         }
         
+        .animate-bounce-slow {
+          animation: bounce 2s ease-in-out infinite;
+        }
+        
+        .animate-slow-spin {
+          animation: spin 20s linear infinite;
+        }
+        
         @keyframes pulse {
           0%, 100% {
             transform: scale(1);
           }
           50% {
             transform: scale(1.1);
+          }
+        }
+        
+        @keyframes bounce {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-10px);
+          }
+        }
+        
+        @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
           }
         }
         

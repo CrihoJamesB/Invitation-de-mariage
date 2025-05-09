@@ -30,6 +30,7 @@ const LocationSection = ({ className = "" }) => {
   const [offset, setOffset] = useState(0)
   const [isMapLoaded, setIsMapLoaded] = useState(false)
   const [activeButton, setActiveButton] = useState(null)
+  const [isMapExpanded, setIsMapExpanded] = useState(false)
 
   // Effet de parallaxe au défilement avec mouvement fluide
   useEffect(() => {
@@ -44,7 +45,7 @@ const LocationSection = ({ className = "" }) => {
 
       // Limiter l'effet pour qu'il soit actif seulement quand la section est visible
       if (relativePosition > 0 && relativePosition < 1.5) {
-        setOffset(relativePosition * 30) // Amplitude de l'effet augmentée
+        setOffset(relativePosition * 40)
       }
     }
 
@@ -60,11 +61,13 @@ const LocationSection = ({ className = "" }) => {
   const openGoogleMapsNavigation = () => {
     setActiveButton("navigate")
     window.open(navigationUrls.googleMaps, "_blank")
+    setTimeout(() => setActiveButton(null), 2000)
   }
 
   const shareLocation = () => {
     setActiveButton("share")
     window.open(whatsAppShareUrl, "_blank")
+    setTimeout(() => setActiveButton(null), 2000)
   }
 
   const copyAddress = () => {
@@ -81,34 +84,38 @@ const LocationSection = ({ className = "" }) => {
       })
   }
 
+  const toggleMapExpansion = () => {
+    setIsMapExpanded(!isMapExpanded)
+  }
+
   return (
     <section
       id="lieu"
       ref={sectionRef}
-      className={`py-12 px-4 ${className} relative overflow-hidden`}
-      style={{
-        background: `linear-gradient(to bottom, rgba(255,255,255,0.9), rgba(255,255,255,1))`,
-      }}
+      className={`py-16 px-4 ${className} relative overflow-hidden`}
     >
-      {/* Effets de parallaxe décoratifs optimisés */}
+      {/* Arrière-plan avec dégradé et effets de parallaxe */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/80 to-white/95 z-0"></div>
+
+      {/* Effets de parallaxe décoratifs */}
       <div
-        className="absolute -top-10 -right-10 w-64 h-64 rounded-full bg-gradient-to-br from-primary/5 to-primary/10 blur-xl z-0"
+        className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-gradient-radial from-primary/10 to-transparent blur-3xl z-0"
         style={{
-          transform: `translate3d(${offset * 0.7}px, ${offset * -0.4}px, 0)`,
+          transform: `translate3d(${offset * 0.8}px, ${offset * -0.5}px, 0)`,
           transition: "transform 0.2s ease-out",
           opacity: 0.7,
         }}
       />
       <div
-        className="absolute -bottom-20 -left-10 w-80 h-80 rounded-full bg-gradient-to-tr from-accent/5 to-accent/10 blur-xl z-0"
+        className="absolute -bottom-40 -left-20 w-96 h-96 rounded-full bg-gradient-radial from-accent/10 to-transparent blur-3xl z-0"
         style={{
-          transform: `translate3d(${offset * -0.5}px, ${offset * 0.3}px, 0)`,
+          transform: `translate3d(${offset * -0.6}px, ${offset * 0.4}px, 0)`,
           transition: "transform 0.2s ease-out",
           opacity: 0.6,
         }}
       />
       <div
-        className="absolute top-1/3 left-1/4 w-16 h-16 rounded-full bg-primary/5 blur-lg z-0"
+        className="absolute top-1/3 left-1/4 w-32 h-32 rounded-full bg-gradient-radial from-secondary/10 to-transparent blur-2xl z-0"
         style={{
           transform: `translate3d(${offset * 1.2}px, ${offset * 0.7}px, 0)`,
           transition: "transform 0.15s ease-out",
@@ -116,38 +123,51 @@ const LocationSection = ({ className = "" }) => {
         }}
       />
 
-      <div className="max-w-3xl mx-auto relative z-10">
+      {/* Motif décoratif */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] z-0"></div>
+
+      <div className="max-w-4xl mx-auto relative z-10">
         {/* Titre de la section avec animation améliorée */}
         <RevealOnScroll animation="fade-up">
-          <div className="text-center mb-10">
-            <h2 className="font-elegant text-3xl text-primary mb-2 relative inline-block">
+          <div className="text-center mb-14">
+            <h2 className="font-elegant text-3xl sm:text-4xl text-primary mb-4 relative inline-block">
               Localisation
-              <span className="absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent"></span>
+              <div className="absolute bottom-0 left-1/2 w-3/4 transform -translate-x-1/2 h-0.5 bg-gradient-to-r from-transparent via-accent to-transparent"></div>
             </h2>
             <p className="text-muted text-sm max-w-md mx-auto">
-              Retrouvez-nous facilement grâce à la carte
+              Retrouvez-nous facilement grâce à la carte interactive
             </p>
           </div>
         </RevealOnScroll>
 
         {/* Carte et infos avec layout amélioré */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           {/* Carte avec vue satellite et animation d'entrée */}
           <RevealOnScroll
             animation="fade-right"
-            className="md:col-span-3"
+            className={`md:col-span-3 ${isMapExpanded ? "md:col-span-5" : ""}`}
           >
             <div
-              className={`relative rounded-xl overflow-hidden shadow-xl h-[300px] sm:h-[350px] md:h-[400px] transition-all duration-1000 ${
-                isMapLoaded ? "opacity-100" : "opacity-70"
-              }`}
+              className={`relative rounded-2xl overflow-hidden shadow-elegant transition-all duration-700 ${
+                isMapExpanded
+                  ? "h-[500px] z-50"
+                  : "h-[300px] sm:h-[350px] md:h-[400px]"
+              } ${isMapLoaded ? "opacity-100" : "opacity-80"}`}
             >
+              {/* Overlay décoratif */}
               <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none z-10"></div>
+              <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-white/20 to-transparent pointer-events-none z-10"></div>
 
-              {/* Loader pendant le chargement de la carte */}
+              {/* Loader avec animation améliorée */}
               {!isMapLoaded && (
-                <div className="absolute inset-0 flex items-center justify-center bg-white/50 z-20">
-                  <div className="w-12 h-12 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm z-20">
+                  <div className="w-16 h-16 mb-4 relative">
+                    <div className="absolute inset-0 rounded-full border-4 border-primary/20"></div>
+                    <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary animate-spin"></div>
+                  </div>
+                  <p className="text-sm text-primary-dark animate-pulse">
+                    Chargement de la carte...
+                  </p>
                 </div>
               )}
 
@@ -158,20 +178,25 @@ const LocationSection = ({ className = "" }) => {
                 onLoad={() => setIsMapLoaded(true)}
                 onError={() => {
                   console.log("Erreur de chargement de la carte")
-                  window.open(navigationUrls.googleMaps, "_blank")
+                  setIsMapLoaded(true)
                 }}
               />
 
-              {/* Bouton pour agrandir la carte en surimpression */}
+              {/* Bouton pour agrandir/réduire la carte */}
               <button
-                className="absolute bottom-4 right-4 bg-white/90 hover:bg-white px-3 py-2 rounded-lg shadow-md text-primary-dark text-sm flex items-center transform transition-transform duration-300 hover:scale-105 backdrop-blur-sm z-20"
-                onClick={openGoogleMapsNavigation}
+                className="absolute bottom-4 right-4 bg-white/90 hover:bg-white px-3 py-2 rounded-lg shadow-md text-primary-dark text-sm flex items-center transform transition-all duration-300 hover:scale-105 hover:shadow-lg backdrop-blur-sm z-20 group"
+                onClick={toggleMapExpansion}
               >
                 <svg
-                  className="w-4 h-4 mr-2"
+                  className="w-4 h-4 mr-2 transition-transform duration-300"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
+                  style={{
+                    transform: isMapExpanded
+                      ? "rotate(180deg)"
+                      : "rotate(0deg)",
+                  }}
                 >
                   <path
                     strokeLinecap="round"
@@ -180,40 +205,44 @@ const LocationSection = ({ className = "" }) => {
                     d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"
                   />
                 </svg>
-                Agrandir
+                {isMapExpanded ? "Réduire" : "Agrandir"}
+                <span className="absolute inset-0 rounded-lg bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
               </button>
             </div>
 
             {/* Options mobile améliorées */}
-            <div className="mt-4 block md:hidden">
-              <LocationOptions />
+            <div
+              className={`mt-5 block md:hidden ${
+                isMapExpanded ? "hidden" : ""
+              }`}
+            >
+              <LocationOptions className="rounded-xl bg-white/80 backdrop-blur-sm shadow-elegant p-4 border border-white/30" />
             </div>
           </RevealOnScroll>
 
           {/* Informations et boutons avec design amélioré */}
           <RevealOnScroll
             animation="fade-left"
-            className="md:col-span-2"
+            className={`md:col-span-2 ${isMapExpanded ? "hidden" : ""}`}
           >
-            <div className="flex flex-col justify-between h-full bg-white p-6 rounded-xl shadow-md">
+            <div className="flex flex-col justify-between h-full bg-gradient-to-b from-white/95 to-white/80 p-6 rounded-2xl shadow-elegant backdrop-blur-sm border border-white/30">
               <div>
-                <h3 className="font-elegant text-2xl text-gradient-to-r from-primary to-primary-dark mb-3">
+                <h3 className="font-elegant text-2xl text-primary-dark mb-4 relative inline-block">
                   {invitationInfo.event.venue}
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-primary/50 to-transparent"></span>
                 </h3>
 
-                <p className="text-primary-dark font-medium mb-1">
+                <p className="text-primary-dark font-medium mb-2">
                   {invitationInfo.event.address}
                 </p>
 
-                <p className="text-muted text-sm mb-4">
-                  {invitationInfo.event.location}
-                  <br />
-                  {invitationInfo.event.city}, {invitationInfo.event.country}
+                <p className="text-muted text-sm mb-6">
+                  {invitationInfo.event.location}, {invitationInfo.event.city}
                 </p>
 
-                {/* Informations pratiques avec icônes améliorées */}
-                <div className="bg-primary/5 p-4 rounded-lg mb-6">
-                  <h4 className="font-sans text-primary-dark font-medium mb-2 flex items-center">
+                {/* Informations pratiques avec icônes améliorées et effets au survol */}
+                <div className="bg-primary/5 p-5 rounded-xl mb-6 border-l-2 border-primary/30">
+                  <h4 className="font-medium text-primary-dark mb-4 flex items-center">
                     <svg
                       className="w-5 h-5 mr-2 text-primary/70"
                       fill="none"
@@ -230,64 +259,76 @@ const LocationSection = ({ className = "" }) => {
                     Informations pratiques
                   </h4>
                   <ul className="text-muted text-sm space-y-3">
-                    <li className="flex items-start transform transition-all duration-300 hover:translate-x-1">
-                      <svg
-                        className="w-5 h-5 text-primary mr-2 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        ></path>
-                      </svg>
-                      <span>Parking disponible à proximité</span>
+                    <li className="flex items-start group cursor-default">
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0 transform transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
+                        <svg
+                          className="w-4 h-4 text-primary transform transition-all duration-300 group-hover:rotate-12"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          ></path>
+                        </svg>
+                      </div>
+                      <span className="transform transition-all duration-300 group-hover:translate-x-1">
+                        Parking disponible à proximité
+                      </span>
                     </li>
-                    <li className="flex items-start transform transition-all duration-300 hover:translate-x-1">
-                      <svg
-                        className="w-5 h-5 text-primary mr-2 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        ></path>
-                      </svg>
-                      <span>Référence: {invitationInfo.event.reference}</span>
+                    <li className="flex items-start group cursor-default">
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0 transform transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
+                        <svg
+                          className="w-4 h-4 text-primary transform transition-all duration-300 group-hover:rotate-12"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          ></path>
+                        </svg>
+                      </div>
+                      <span className="transform transition-all duration-300 group-hover:translate-x-1">
+                        Référence: {invitationInfo.event.reference}
+                      </span>
                     </li>
-                    <li className="flex items-start transform transition-all duration-300 hover:translate-x-1">
-                      <svg
-                        className="w-5 h-5 text-primary mr-2 flex-shrink-0"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        ></path>
-                      </svg>
-                      <span>Accessible aux personnes à mobilité réduite</span>
+                    <li className="flex items-start group cursor-default">
+                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0 transform transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/20">
+                        <svg
+                          className="w-4 h-4 text-primary transform transition-all duration-300 group-hover:rotate-12"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 13l4 4L19 7"
+                          ></path>
+                        </svg>
+                      </div>
+                      <span className="transform transition-all duration-300 group-hover:translate-x-1">
+                        Accessible aux personnes à mobilité réduite
+                      </span>
                     </li>
                   </ul>
                 </div>
 
                 {/* Options de navigation pour tablette/desktop */}
                 <div className="hidden md:block">
-                  <LocationOptions />
+                  <LocationOptions className="rounded-xl bg-gradient-to-r from-white/40 to-white/60 backdrop-blur-sm shadow-sm p-4" />
                 </div>
               </div>
 
-              {/* Boutons d'action améliorés */}
+              {/* Boutons d'action améliorés avec effets */}
               <div className="space-y-3 mt-6">
                 <Button
                   variant="primary"
@@ -308,14 +349,16 @@ const LocationSection = ({ className = "" }) => {
                     </svg>
                   }
                   onClick={openGoogleMapsNavigation}
-                  className={`transform transition-all duration-300 hover:-translate-y-1 ${
-                    activeButton === "navigate" ? "pulse-once" : ""
+                  className={`transform transition-all duration-500 hover:-translate-y-1 hover:shadow-lg ${
+                    activeButton === "navigate"
+                      ? "pulse-once bg-primary-dark"
+                      : ""
                   }`}
                 >
                   Obtenir l&apos;itinéraire
                 </Button>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-4">
                   <Button
                     variant="outline"
                     icon={
@@ -328,8 +371,10 @@ const LocationSection = ({ className = "" }) => {
                       </svg>
                     }
                     onClick={shareLocation}
-                    className={`transform transition-all duration-300 hover:-translate-y-1 ${
-                      activeButton === "share" ? "pulse-once" : ""
+                    className={`transform transition-all duration-500 hover:-translate-y-1 hover:shadow-lg ${
+                      activeButton === "share"
+                        ? "pulse-once text-green-600 border-green-300 bg-green-50"
+                        : ""
                     }`}
                   >
                     Partager
@@ -369,8 +414,10 @@ const LocationSection = ({ className = "" }) => {
                       )
                     }
                     onClick={copyAddress}
-                    className={`transform transition-all duration-300 hover:-translate-y-1 ${
-                      activeButton === "copy" ? "bg-green-50" : ""
+                    className={`transform transition-all duration-500 hover:-translate-y-1 hover:shadow-lg ${
+                      activeButton === "copy"
+                        ? "text-green-600 border-green-300 bg-green-50"
+                        : ""
                     }`}
                   >
                     {activeButton === "copy" ? "Copié !" : "Copier"}
@@ -382,13 +429,16 @@ const LocationSection = ({ className = "" }) => {
         </div>
       </div>
 
-      {/* Styles pour animations */}
+      {/* Styles pour animations et motifs */}
       <style>{`
-        .text-gradient-to-r {
-          background: linear-gradient(to right, var(--color-primary), var(--color-primary-dark));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
+        .shadow-elegant {
+          box-shadow: 0 10px 40px -5px rgba(0, 0, 0, 0.08);
+        }
+        
+        .bg-grid-pattern {
+          background-image: linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+          background-size: 20px 20px;
         }
         
         @keyframes pulse-animation {

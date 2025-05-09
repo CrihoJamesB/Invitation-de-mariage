@@ -1,26 +1,39 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root {
-    font-family: 'Poppins', system-ui, sans-serif;
-    line-height: 1.5;
-    font-weight: 400;
-    color: theme('colors.gray.800');
-    background-color: theme('colors.gray.50');
-    font-synthesis: none;
-    text-rendering: optimizeLegibility;
+  html {
+    font-family: var(--font-sans);
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply bg-secondary text-text-dark;
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  
+  /* Styles des headings */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+  }
 
-  body {
-    margin: 0;
-    min-height: 100vh;
+  /* Gestion des safe areas pour iOS */
+  .pb-safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  
+  /* Désactiver le surlignement sur les appareils mobiles */
+  * {
+    -webkit-tap-highlight-color: transparent;
   }
 }
 
@@ -44,6 +57,46 @@
   }
   .hover-lift:hover {
     @apply transform -translate-y-1;
+  }
+
+  /* Conteneur responsive avec padding horizontal */
+  .container-padded {
+    @apply px-4 mx-auto max-w-7xl;
+  }
+  
+  /* Titre de section avec décoration */
+  .section-title {
+    @apply font-elegant text-3xl text-primary mb-4 text-center;
+  }
+
+  /* Sous-titre de section */
+  .section-subtitle {
+    @apply text-muted text-center text-sm mb-8 max-w-2xl mx-auto;
+  }
+  
+  /* Cartes */
+  .card {
+    @apply bg-white rounded-xl shadow-card overflow-hidden;
+  }
+  
+  /* Boutons */
+  .btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-300;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+  
+  /* Animation d'entrée */
+  .animate-fade-in {
+    @apply opacity-0;
+    animation: fadeIn 0.6s ease-in-out forwards;
+  }
+  
+  .animate-slide-up {
+    @apply opacity-0 translate-y-4;
+    animation: slideUp 0.5s ease-out forwards;
   }
 }
 
@@ -75,5 +128,27 @@
   a {
     text-decoration: none !important;
     color: black !important;
+  }
+}
+
+/* Styles des utilitaires */
+@layer utilities {
+  /* Ombres spéciales */
+  .shadow-elegant {
+    box-shadow: 0 6px 16px rgba(139, 93, 51, 0.12);
+  }
+  
+  /* Texte avec dégradé */
+  .text-gradient {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  /* Support pour les médias Safari */
+  @supports (-webkit-touch-callout: none) {
+    .pb-safe-area-inset-bottom {
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+    }
   }
 }

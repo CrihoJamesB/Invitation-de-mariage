@@ -221,6 +221,17 @@ const LandingPage = () => {
         </p>
         <div className="mt-6 text-xs text-white/50">
           <p>© {new Date().getFullYear()} - Tous droits réservés</p>
+          <p className="mt-1">
+            Développé par Criho James,{" "}
+            <a
+              href="https://www.criho.tech"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-white transition-colors duration-300"
+            >
+              @https://www.criho.tech
+            </a>
+          </p>
         </div>
       </footer>
 

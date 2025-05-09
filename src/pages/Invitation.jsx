@@ -295,26 +295,26 @@ const Invitation = () => {
               >
                 {navigationIcons[section]}
                 <span className="text-xs font-medium capitalize">
-                {section}
-              </span>
-            </button>
-          ))}
+                  {section}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
       </nav>
 
       {/* Conteneur principal avec effet de parallaxe léger */}
       <div className="pt-0 pb-20 sm:pb-0 sm:pt-16 overflow-hidden">
-      {/* Section d'accueil avec l'en-tête */}
-      <div
-        id="accueil"
+        {/* Section d'accueil avec l'en-tête */}
+        <div
+          id="accueil"
           className="min-h-[90vh] flex items-center transition-opacity duration-700"
           style={{ opacity: activeSection === "accueil" ? 1 : 0.8 }}
-      >
+        >
           <div className="w-full">
-        <Header guestInfo={guestInfo} />
+            <Header guestInfo={guestInfo} />
           </div>
-      </div>
+        </div>
 
         {/* Sections du contenu avec effet de fade-in */}
         <div
@@ -322,7 +322,7 @@ const Invitation = () => {
           className="scroll-mt-16 transition-opacity duration-700"
           style={{ opacity: activeSection === "details" ? 1 : 0.8 }}
         >
-      <DetailSection />
+          <DetailSection />
         </div>
 
         <div
@@ -330,7 +330,7 @@ const Invitation = () => {
           className="scroll-mt-16 transition-opacity duration-700"
           style={{ opacity: activeSection === "programme" ? 1 : 0.8 }}
         >
-      <ProgramSection />
+          <ProgramSection />
         </div>
 
         <div
@@ -338,7 +338,7 @@ const Invitation = () => {
           className="scroll-mt-16 transition-opacity duration-700"
           style={{ opacity: activeSection === "lieu" ? 1 : 0.8 }}
         >
-      <LocationSection />
+          <LocationSection />
         </div>
       </div>
 
@@ -370,12 +370,12 @@ const Invitation = () => {
         </div>
         <div className="relative z-10">
           <p className="font-elegant text-2xl mb-3">
-          {invitationInfo.couple.groom} & {invitationInfo.couple.bride}
-        </p>
+            {invitationInfo.couple.groom} & {invitationInfo.couple.bride}
+          </p>
           <div className="w-16 h-1 bg-white/30 mx-auto mb-4"></div>
           <p className="text-sm text-white/80 max-w-md mx-auto leading-relaxed">
-          Nous nous réjouissons de célébrer ce jour spécial avec vous
-        </p>
+            Nous nous réjouissons de célébrer ce jour spécial avec vous
+          </p>
           <div className="flex justify-center gap-4 mt-6 mb-6">
             <button
               className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-all duration-300"
@@ -415,7 +415,18 @@ const Invitation = () => {
             </button>
           </div>
           <div className="text-xs text-white/50">
-          <p>© {new Date().getFullYear()} - Tous droits réservés</p>
+            <p>© {new Date().getFullYear()} - Tous droits réservés</p>
+            <p className="mt-1">
+              Développé par Criho James,{" "}
+              <a
+                href="https://www.criho.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors duration-300"
+              >
+                @https://www.criho.tech
+              </a>
+            </p>
           </div>
         </div>
       </footer>

@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     // Optimisation du build
-    minify: 'terser',
+    minify: "terser",
     terserOptions: {
       compress: {
         drop_console: true,
@@ -16,15 +16,20 @@ export default defineConfig({
       output: {
         manualChunks: {
           // Séparation des chunks pour optimiser le chargement
-          vendor: ['react', 'react-dom'],
+          vendor: ["react", "react-dom"],
         },
       },
     },
     // Génération de sourcemaps pour production
     sourcemap: false,
+    // Configuration pour le déploiement
+    outDir: "dist",
+    assetsDir: "assets",
   },
   server: {
     // Optimisation du serveur de développement
     hmr: true,
+    port: process.env.PORT || 5173,
+    host: true, // Nécessaire pour les plateformes de déploiement
   },
 })

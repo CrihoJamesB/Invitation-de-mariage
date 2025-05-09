@@ -1,34 +1,67 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { invitationInfo } from "../data/invitationInfo";
-import RevealOnScroll from "../components/common/RevealOnScroll";
+import { useEffect, useState } from "react"
+import { Link } from "react-router-dom"
+import { invitationInfo } from "../data/invitationInfo"
+import RevealOnScroll from "../components/common/RevealOnScroll"
 
 /**
  * Page d&apos;atterrissage optimisée pour SEO et partage des invitations
  * Cette page est accessible publiquement sans ID d&apos;invité
  */
 const LandingPage = () => {
+  // État pour stocker les messages d'erreur d'authentification
+  const [authMessage, setAuthMessage] = useState("")
+
   // Optimisations SEO
   useEffect(() => {
-    document.title = `Mariage de ${invitationInfo.couple.groom} & ${invitationInfo.couple.bride} - ${invitationInfo.event.date}`;
-    
+    document.title = `Mariage de ${invitationInfo.couple.groom} & ${invitationInfo.couple.bride} - ${invitationInfo.event.date}`
+
     // Mise à jour des métadonnées pour optimiser le partage sur les réseaux sociaux
-    const metaDescription = document.querySelector('meta[name="description"]');
+    const metaDescription = document.querySelector('meta[name="description"]')
     if (metaDescription) {
       metaDescription.setAttribute(
         "content",
         `Nous avons l'immense joie de vous convier au mariage de ${invitationInfo.couple.groom} & ${invitationInfo.couple.bride} qui aura lieu le ${invitationInfo.event.date} à ${invitationInfo.event.venue}.`
-      );
+      )
     }
-    
-    // Mise à jour de l'heure de l'événement si nécessaire
-    if (invitationInfo.event.time !== "19h") {
-      invitationInfo.event.time = "19h";
+
+    // Vérification des messages d'authentification
+    const storedMessage = localStorage.getItem("authMessage")
+    if (storedMessage) {
+      setAuthMessage(storedMessage)
+      // Supprimer le message après l'avoir affiché
+      localStorage.removeItem("authMessage")
+
+      // Faire disparaître le message après 5 secondes
+      const timer = setTimeout(() => {
+        setAuthMessage("")
+      }, 5000)
+
+      return () => clearTimeout(timer)
     }
-  }, []);
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col bg-secondary">
+      {/* Message d'alerte pour l'authentification */}
+      {authMessage && (
+        <div className="fixed top-4 left-0 right-0 mx-auto max-w-md z-50 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-lg animate-fadeIn">
+          <div className="flex items-center">
+            <div className="py-1">
+              <svg
+                className="w-6 h-6 mr-4 fill-current text-red-500"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+              >
+                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm">{authMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* En-tête avec fond décoratif */}
       <header className="relative h-80 sm:h-96 bg-primary/10 overflow-hidden">
         <div className="absolute inset-0 bg-floral-pattern opacity-20"></div>
@@ -203,9 +236,18 @@ const LandingPage = () => {
         .shadow-elegant {
           box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         }
+        
+        /* Animation pour les messages d'alerte */
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-in-out;
+        }
       `}</style>
     </div>
   )
-};
+}
 
-export default LandingPage; 
+export default LandingPage

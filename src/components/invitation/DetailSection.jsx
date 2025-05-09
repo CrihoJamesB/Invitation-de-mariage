@@ -94,7 +94,7 @@ const DetailSection = ({ className = "" }) => {
               </h3>
                 <p className="text-primary-dark font-semibold text-xl mb-2 bg-clip-text text-transparent bg-gradient-to-r from-primary to-accent inline-block">
                 {invitationInfo.event.date}
-                </p>
+              </p>
                 <p className="text-muted">à {invitationInfo.event.time}</p>
 
                 {/* Timeline des événements améliorée */}
@@ -166,7 +166,7 @@ const DetailSection = ({ className = "" }) => {
                       ></path>
                     </svg>
                     <div>
-                      <p className="text-sm text-primary-dark font-medium">
+                <p className="text-sm text-primary-dark font-medium">
                         Arrivée recommandée à partir de 19h
                 </p>
                 <p className="text-xs text-muted mt-1">

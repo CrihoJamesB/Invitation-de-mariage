@@ -4,11 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npx vite",
+    "build": "npx vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview",
-    "start": "serve -s dist"
+    "preview": "npx vite preview",
+    "start": "npx serve -s dist"
   },
   "dependencies": {
     "core-js": "^3.35.1",

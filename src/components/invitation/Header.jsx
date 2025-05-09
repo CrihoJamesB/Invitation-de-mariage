@@ -396,40 +396,53 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
               </div>
 
               <div className="divide-y divide-primary/10">
-                {tableInfo.invites.map((invite, index) => (
-                  <div
-                    key={index}
-                    className={`py-3 flex justify-between items-center ${
-                      guestInfo &&
+                {/* Affichage de l'invité actuel uniquement */}
+                {guestInfo &&
+                  tableInfo.invites.map((invite, index) => {
+                    // Ne montrer que l'invité actuel
+                    if (
                       invite.name.toLowerCase() === guestInfo.name.toLowerCase()
-                        ? "-mx-3 px-3 rounded-lg"
-                        : ""
-                    }`}
-                    style={{
-                      backgroundColor:
-                        guestInfo &&
-                        invite.name.toLowerCase() ===
-                          guestInfo.name.toLowerCase()
-                          ? `${tableInfo.color}15`
-                          : "transparent",
-                    }}
-                  >
-                    <div className="flex items-center">
-                      <span
-                        className="w-2 h-2 rounded-full mr-3"
-                        style={{ backgroundColor: tableInfo.color }}
-                      ></span>
-                      <span className="text-primary-dark">{invite.name}</span>
-                    </div>
-                    <span
-                      className="text-sm px-2 py-1 rounded-full text-muted"
-                      style={{ backgroundColor: `${tableInfo.color}15` }}
-                    >
-                      {invite.count}{" "}
-                      {invite.count > 1 ? "personnes" : "personne"}
-                    </span>
-                  </div>
-                ))}
+                    ) {
+                      return (
+                        <div
+                          key={index}
+                          className="py-3 flex justify-between items-center -mx-3 px-3 rounded-lg"
+                          style={{
+                            backgroundColor: `${tableInfo.color}15`,
+                          }}
+                        >
+                          <div className="flex items-center">
+                            <span
+                              className="w-2 h-2 rounded-full mr-3"
+                              style={{ backgroundColor: tableInfo.color }}
+                            ></span>
+                            <span className="text-primary-dark">
+                              {invite.name}
+                            </span>
+                          </div>
+                          <span
+                            className="text-sm px-2 py-1 rounded-full text-muted"
+                            style={{ backgroundColor: `${tableInfo.color}15` }}
+                          >
+                            {invite.count}{" "}
+                            {invite.count > 1 ? "personnes" : "personne"}
+                          </span>
+                        </div>
+                      )
+                    }
+                    return null
+                  })}
+
+                {/* Message indiquant la présence d'autres invités anonymes */}
+                <div className="py-4 text-center mt-3">
+                  <p className="text-muted text-sm italic">
+                    {guestInfo
+                      ? `Vous partagerez cette table avec ${
+                          tableInfo.count - (guestInfo.count || 1)
+                        } autres invités`
+                      : "Informations des invités masquées pour préserver leur confidentialité"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>

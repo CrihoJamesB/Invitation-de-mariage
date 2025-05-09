@@ -232,10 +232,14 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             </div>
           )}
 
-          {/* Button scroll down avec animation améliorée */}
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
+          {/* Button scroll down avec animation améliorée - position ajustée en mobile */}
+          <div
+            className={`absolute ${
+              guestInfo ? "bottom-4 sm:bottom-8" : "bottom-8"
+            } left-1/2 transform -translate-x-1/2 mt-12 z-10`}
+          >
             <button
-              className="group flex flex-col items-center justify-center text-primary opacity-70 hover:opacity-100 transition-all"
+              className="group flex flex-col items-center justify-center text-primary opacity-70 hover:opacity-100 transition-all bg-white/30 backdrop-blur-sm p-2 rounded-full shadow-sm"
               onClick={() =>
                 document
                   .getElementById("details")
@@ -243,12 +247,12 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
               }
               aria-label="Défiler vers le bas"
             >
-              <span className="text-xs uppercase tracking-widest mb-2 group-hover:transform group-hover:translate-y-1 transition-transform">
+              <span className="text-xs uppercase tracking-widest mb-1 group-hover:transform group-hover:translate-y-1 transition-transform hidden sm:block">
                 Découvrir
               </span>
               <div className="relative">
                 <svg
-                  className="w-10 h-10 animate-bounce-slow"
+                  className="w-7 h-7 sm:w-10 sm:h-10 animate-bounce-slow"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

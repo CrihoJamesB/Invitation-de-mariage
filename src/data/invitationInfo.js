@@ -68,6 +68,221 @@ export const invitationInfo = {
     contactPhone: "+243 XX XXX XXXX",
     contactEmail: "fistonvino2025@gmail.com",
   },
+
+  // Tables des invités
+  tables: [
+    {
+      name: "Shukrani",
+      count: 12,
+      color: "#8E7CC3", // Violet pastel
+      invites: [
+        { name: "Institut Kilanga", count: 7 },
+        { name: "Couple FAKI", count: 2 },
+        { name: "EP SHINDANO", count: 3 },
+      ]
+    },
+    {
+      name: "Yvmie",
+      count: 10,
+      color: "#6FA8DC", // Bleu ciel
+      invites: [
+        { name: "INSTITUT WILLIAM", count: 5 },
+        { name: "COUPLE MAKAMBU", count: 2 },
+        { name: "COUPLE KIKWESE", count: 2 },
+        { name: "Vudwawu", count: 1 },
+      ]
+    },
+    {
+      name: "Yvanna",
+      count: 9,
+      color: "#76A5AF", // Bleu-vert
+      invites: [
+        { name: "ÉCOLE CROUCROU", count: 5 },
+        { name: "COUPLE LUCIEN", count: 2 },
+        { name: "COUPLE MASIALA", count: 2 },
+      ]
+    },
+    {
+      name: "Aurore",
+      count: 10,
+      color: "#F9CB9C", // Pêche
+      invites: [
+        { name: "COUPLE FWAMBA EMMANUEL", count: 2 },
+        { name: "COUPLE MBUYU CLAUDE", count: 2 },
+        { name: "COUPLE KUMWIMBA PEGGY", count: 2 },
+        { name: "COUPLE MBUMBA FREDY", count: 2 },
+        { name: "ANGEL KYUNGU", count: 1 },
+        { name: "Mukalay Jean", count: 1 },
+      ]
+    },
+    {
+      name: "Beneth",
+      count: 9,
+      color: "#C27BA0", // Rose
+      invites: [
+        { name: "Couple Fwamba George", count: 2 },
+        { name: "Couple KYUNGU Benjamin", count: 2 },
+        { name: "Couple Fwamba Franc", count: 2 },
+        { name: "Maman Nénette", count: 1 },
+        { name: "Maman KYUNGU", count: 1 },
+        { name: "Maman Costa", count: 1 },
+      ]
+    },
+    {
+      name: "Amani",
+      count: 10,
+      color: "#93C47D", // Vert clair
+      invites: [
+        { name: "Couple Kalumba Yvon", count: 2 },
+        { name: "Couple Kongolo Cédric", count: 2 },
+        { name: "Couple Binene Paulin", count: 2 },
+        { name: "Couple Jibikilayi Patient", count: 2 },
+        { name: "Jeanine Nzolana", count: 1 },
+        { name: "Nancy", count: 1 },
+      ]
+    },
+    {
+      name: "Cheyenne",
+      count: 12,
+      color: "#B4A7D6", // Lavande
+      invites: [
+        { name: "Pungwe Falonne", count: 1 },
+        { name: "Ngoy Marina", count: 1 },
+        { name: "Mukalay Christian", count: 1 },
+        { name: "Fwamba Gorcelain", count: 1 },
+        { name: "Badibanga James", count: 1 },
+        { name: "Mukalay Michael", count: 1 },
+        { name: "Gisèle et Lidia", count: 2 },
+        { name: "Arlette Fwamba", count: 1 },
+        { name: "Juve", count: 1 },
+        { name: "Maris Ntambwe", count: 1 },
+      ]
+    },
+    {
+      name: "Christina",
+      count: 10,
+      color: "#F6B26B", // Orange
+      invites: [
+        { name: "Couple Olivier", count: 2 },
+        { name: "Couple Didier", count: 2 },
+        { name: "Couple Bob", count: 2 },
+        { name: "Couple JIMMY", count: 2 },
+        { name: "MAMAN CHRISTINE ET PERFODIE", count: 2 },
+      ]
+    },
+    {
+      name: "Claudeney",
+      count: 6,
+      color: "#A4C2F4", // Bleu clair
+      invites: [
+        { name: "Espérance", count: 1 },
+        { name: "Claude Junior", count: 1 },
+        { name: "Djodjo", count: 1 },
+        { name: "Exaucé", count: 1 },
+        { name: "MELINA", count: 1 },
+        { name: "HÉLÈNE", count: 1 },
+      ]
+    },
+    {
+      name: "Stone",
+      count: 8,
+      color: "#D5A6BD", // Rose pâle
+      invites: [
+        { name: "Destiné", count: 1 },
+        { name: "Couple Merveille", count: 2 },
+        { name: "Jemima et Paola", count: 2 },
+        { name: "Couple Shadrac", count: 2 },
+        { name: "MA MARIE", count: 1 },
+      ]
+    },
+    {
+      name: "Fréd",
+      count: 6,
+      color: "#D9D2E9", // Mauve clair
+      invites: [
+        { name: "Arlette Dimonekene", count: 1 },
+        { name: "Couple Merveille", count: 2 },
+        { name: "Papy Masini", count: 1 },
+        { name: "Marie Bikela", count: 1 },
+        { name: "Maman Bijoux", count: 1 },
+      ]
+    },
+    {
+      name: "Frémi",
+      count: 10,
+      color: "#FFD966", // Jaune doré
+      invites: [
+        { name: "Couple Papa Bona", count: 2 },
+        { name: "Couple KELLY", count: 2 },
+        { name: "COUPLE CHRISTINE", count: 2 },
+        { name: "COUPLE LE KING-DOLA", count: 2 },
+        { name: "COUPLE NATACHA", count: 2 },
+      ]
+    },
+    {
+      name: "Justine",
+      count: 12,
+      color: "#9FC5E8", // Bleu ciel clair
+      invites: [
+        { name: "Alfred", count: 1 },
+        { name: "Fariam", count: 1 },
+        { name: "COUPLE MAMAN ANNI", count: 2 },
+        { name: "COUPLE ALAIN", count: 2 },
+        { name: "COUPLE TOTO", count: 2 },
+        { name: "COUPLE MPEMA", count: 2 },
+        { name: "COUPLE RICHARD", count: 2 },
+      ]
+    },
+    {
+      name: "GABBY",
+      count: 10,
+      color: "#EA9999", // Rose saumon
+      invites: [
+        { name: "COUPLE LAURENT", count: 2 },
+        { name: "COUPLE ÉRIC", count: 2 },
+        { name: "COUPLE BELLONE", count: 2 },
+        { name: "COUPLE TSHAMALA", count: 2 },
+        { name: "COUPLE GABRIEL", count: 2 },
+      ]
+    },
+    {
+      name: "GAËTAN",
+      count: 10,
+      color: "#B6D7A8", // Vert pâle
+      invites: [
+        { name: "JOCELYNE", count: 1 },
+        { name: "Florence", count: 1 },
+        { name: "Roger", count: 1 },
+        { name: "SACRE", count: 1 },
+        { name: "COUPLE KELLY", count: 2 },
+        { name: "COUPLE MA MBELO", count: 2 },
+        { name: "COUPLE LÉON", count: 2 },
+      ]
+    },
+    {
+      name: "Gaël",
+      count: 10,
+      color: "#FFD6B3", // Abricot
+      invites: [
+        { name: "COUPLE LOVE", count: 2 },
+        { name: "FRÈRE DANNY", count: 1 },
+        { name: "COUPLE CHRISTIAN", count: 2 },
+        { name: "COUPLE FREDDYNA", count: 2 },
+        { name: "TA MWASI", count: 1 },
+        { name: "COUPLE TATU", count: 2 },
+      ]
+    },
+    {
+      name: "GAËLLE",
+      count: 3,
+      color: "#D5B8FF", // Violet clair
+      invites: [
+        { name: "PATRICK MUANDA", count: 1 },
+        { name: "HUBERT NHEMA", count: 1 },
+        { name: "ANICET TUNDA", count: 1 },
+      ]
+    },
+  ],
 }
 
 /**

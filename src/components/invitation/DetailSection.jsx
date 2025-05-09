@@ -46,7 +46,7 @@ const DetailSection = ({ className = "" }) => {
               <button
                 className={`py-2 px-6 rounded-full text-sm font-medium transition-all duration-300 ${
                   activeTab === "lieu"
-                    ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md" 
+                    ? "bg-gradient-to-r from-primary to-primary-dark text-white shadow-md"
                     : "text-primary-dark/70 hover:bg-primary/5"
                 }`}
                 onClick={() => setActiveTab("lieu")}
@@ -116,7 +116,9 @@ const DetailSection = ({ className = "" }) => {
                       </svg>
                     </div>
                     <div className="flex flex-col items-start">
-                      <span className="font-medium text-primary-dark">19h00</span>
+                      <span className="font-medium text-primary-dark">
+                        19h00
+                      </span>
                       <span className="text-xs text-muted">
                         Accueil des invités
                       </span>
@@ -140,7 +142,9 @@ const DetailSection = ({ className = "" }) => {
                       </svg>
                     </div>
                     <div className="flex flex-col items-start">
-                      <span className="font-medium text-primary-dark">19h30</span>
+                      <span className="font-medium text-primary-dark">
+                        19h30
+                      </span>
                       <span className="text-xs text-muted">
                         Début de la cérémonie
                       </span>
@@ -313,7 +317,7 @@ const DetailSection = ({ className = "" }) => {
             <div className="absolute -inset-px bg-grid-pattern opacity-5"></div>
             <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 rounded-full bg-gradient-radial from-primary/5 to-transparent blur-xl"></div>
             <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-32 h-32 rounded-full bg-gradient-radial from-accent/5 to-transparent blur-xl"></div>
-            
+
             <div className="relative">
               <svg
                 className="w-8 h-8 text-primary/40 mx-auto mb-4"
@@ -339,7 +343,7 @@ const DetailSection = ({ className = "" }) => {
               <div className="absolute top-0 -mt-4 left-1/2 transform -translate-x-1/2 bg-primary/80 text-white text-xs uppercase tracking-widest py-1 px-4 rounded-full shadow-md">
                 Dress Code
               </div>
-              
+
               <p className="text-primary-dark text-lg font-medium mt-3">
                 {invitationInfo.dressCode}
               </p>

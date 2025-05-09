@@ -1,18 +1,14 @@
 [phases.setup]
-nixPkgs = ["nodejs_20"]
+nixPkgs = ["nodejs"]
 
 [phases.install]
-dependsOn = ["setup"]
-cmds = ["npm ci"]
-cacheDirectories = ["node_modules/.cache"]
+cmds = ["npm install"]
 
 [phases.build]
-dependsOn = ["install"]
 cmds = ["npm run build"]
 
 [start]
 cmd = "npx serve -s dist"
-dependsOn = ["build"]
 
 [variables]
 NODE_ENV = "production"

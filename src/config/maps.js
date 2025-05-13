@@ -24,6 +24,9 @@ export const MAPS_CONFIG = {
   referrerPolicy: "no-referrer-when-downgrade",
 }
 
+// Export pour la compatibilité avec le code existant
+export const GOOGLE_MAPS_IFRAME_URL = MAPS_CONFIG.iframeUrl
+
 /**
  * Génère les URLs pour différents services de navigation
  * @param {Object} venue - Informations sur le lieu du mariage
@@ -34,16 +37,16 @@ export const getNavigationUrls = (venue) => {
   const { lat, lng } = VENUE_COORDINATES
 
   return {
-    // Lien direct vers Google Maps avec paramètres optimisés
-    googleMaps: `https://www.google.com/maps?q=${lat},${lng}&z=15&t=m`,
+    // Lien direct vers Google Maps avec itinéraire
+    googleMaps: `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving&dir_action=navigate`,
 
-    // Lien direct vers Yango (sans point de départ prédéfini)
+    // Lien direct vers Yango avec itinéraire
     yango: `https://yango.go.link/route?end-lat=${lat}&end-lon=${lng}&ref=weddingapp&adj_t=vokme8e_nd9s9z9&lang=fr&adj_deeplink_js=1&adj_fallback=https%3A%2F%2Fyango.com%2Ffr_int%2Forder%2F%3Fgto%3D${lng}%2C${lat}%26ref%3Dweddingapp`,
 
-    // Lien direct vers Apple Plans avec paramètres optimisés
-    appleMaps: `https://maps.apple.com/?ll=${lat},${lng}&q=${locationName}&z=15`,
+    // Lien direct vers Apple Plans avec itinéraire
+    appleMaps: `https://maps.apple.com/?daddr=${lat},${lng}&dirflg=d&t=m`,
 
-    // Lien direct vers Uber (sans point de départ prédéfini)
+    // Lien direct vers Uber avec itinéraire
     uber: `https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[latitude]=${lat}&dropoff[longitude]=${lng}&dropoff[nickname]=${locationName}`,
   }
 }
@@ -57,7 +60,7 @@ export const getNavigationUrls = (venue) => {
 export const getWhatsAppShareUrl = (venue, couple) => {
   const { lat, lng, name, city, country } = VENUE_COORDINATES
   const message = encodeURIComponent(
-    `📍 Lieu du mariage de ${couple.groom} et ${couple.bride}:\n\n${name}, ${venue.address}\n${city}, ${country}\n\n🗺️ Google Maps: https://www.google.com/maps?q=${lat},${lng}`
+    `📍 Lieu du mariage de ${couple.groom} et ${couple.bride}:\n\n${name}, ${venue.address}\n${city}, ${country}\n\n🗺️ Itinéraire: https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`
   )
 
   return `https://wa.me/?text=${message}`

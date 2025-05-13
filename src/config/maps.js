@@ -15,7 +15,7 @@ export const VENUE_COORDINATES = {
 // Paramètres optimisés pour l'iframe Google Maps
 export const MAPS_CONFIG = {
   iframeUrl:
-    "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d268.0709042223314!2d15.284177500000002!3d-4.349492299999992!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1a6a311727fd6733%3A0x90c247f29251d470!2sInga%2C%20Kinshasa!5e1!3m2!1sfr!2scd!4v1747145837388!5m2!1sfr!2scd",
+    "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d1072.2836177773256!2d15.284177500000002!3d-4.349492299999992!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1a6a311727fd6733%3A0x90c247f29251d470!2sInga%2C%20Kinshasa!5e1!3m2!1sfr!2scd!4v1747145837388!5m2!1sfr!2scd",
   width: "100%",
   height: "450",
   style: "border:0",

@@ -5,7 +5,7 @@ import RevealOnScroll from "../common/RevealOnScroll"
 import MapLoader from "../common/MapLoader"
 import LocationOptions from "./LocationOptions"
 import {
-  GOOGLE_MAPS_IFRAME_URL,
+  MAPS_CONFIG,
   getNavigationUrls,
   getWhatsAppShareUrl,
 } from "../../config/maps"
@@ -172,7 +172,7 @@ const LocationSection = ({ className = "" }) => {
               )}
 
               <MapLoader
-                src={GOOGLE_MAPS_IFRAME_URL}
+                src={MAPS_CONFIG.iframeUrl}
                 title="Carte du lieu de mariage"
                 className="w-full h-full"
                 onLoad={() => setIsMapLoaded(true)}
@@ -180,6 +180,8 @@ const LocationSection = ({ className = "" }) => {
                   console.log("Erreur de chargement de la carte")
                   setIsMapLoaded(true)
                 }}
+                iframeClassName="w-full h-full"
+                lazyLoad={true}
               />
 
               {/* Bouton pour agrandir/réduire la carte */}

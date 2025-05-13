@@ -27,13 +27,14 @@ const MapLoader = ({
   const [shouldLoad, setShouldLoad] = useState(!lazyLoad)
   const [loadAttempts, setLoadAttempts] = useState(0)
   const mapRef = useRef(null)
-  const containerId = `map-container-${title.replace(/\s+/g, "-").toLowerCase()}`
+  const containerId = `map-container-${title
+    .replace(/\s+/g, "-")
+    .toLowerCase()}`
 
   // Observer pour le chargement paresseux avec IntersectionObserver
   useEffect(() => {
     if (!lazyLoad) return
 
-    // Initialiser l'observer avec une marge plus grande pour précharger avant que l'élément soit visible
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -41,9 +42,9 @@ const MapLoader = ({
           observer.disconnect()
         }
       },
-      { 
-        threshold: 0.1, 
-        rootMargin: "300px" // Préchargement quand on approche à 300px
+      {
+        threshold: 0.1,
+        rootMargin: "300px", // Préchargement quand on approche à 300px
       }
     )
 
@@ -55,122 +56,75 @@ const MapLoader = ({
     }
   }, [lazyLoad, containerId])
 
-  // Gestionnaire de chargement
-  const handleMapLoad = () => {
+  // Gestion du chargement de l'iframe
+  const handleIframeLoad = () => {
     setIsLoading(false)
     if (onLoad) onLoad()
   }
 
-  // Gestionnaire d'erreur avec tentatives de rechargement
-  const handleMapError = () => {
-    // Maximum 3 tentatives de rechargement
-    if (loadAttempts < 2) {
-      setLoadAttempts(prev => prev + 1)
-      
-      // Réessayer après un délai
+  const handleIframeError = () => {
+    setHasError(true)
+    setIsLoading(false)
+    if (onError) onError()
+
+    // Tentative de rechargement en cas d'erreur (max 3 tentatives)
+    if (loadAttempts < 3) {
+      setLoadAttempts((prev) => prev + 1)
       setTimeout(() => {
-        if (mapRef.current) {
-          // Rafraîchir l'iframe en modifiant son src
-          const iframe = mapRef.current
-          const currentSrc = iframe.src
-          iframe.src = ""
-          setTimeout(() => {
-            iframe.src = currentSrc
-          }, 100)
-        }
-      }, 1000 * (loadAttempts + 1)) // Augmenter le délai à chaque tentative
-    } else {
-      // Après 3 tentatives, afficher l'erreur
-      setIsLoading(false)
-      setHasError(true)
-      if (onError) onError()
+        setShouldLoad(true)
+        setIsLoading(true)
+        setHasError(false)
+      }, 2000 * (loadAttempts + 1)) // Délai croissant entre les tentatives
     }
   }
-
-  // Effet d'animation pour le chargement
-  const loadingAnimationClass = isLoading 
-    ? "opacity-100 transition-opacity duration-300" 
-    : "opacity-0 transition-opacity duration-500 pointer-events-none"
 
   return (
     <div
       id={containerId}
+      className={`relative ${className}`}
       ref={mapRef}
-      className={`relative overflow-hidden ${className}`}
-      style={{ minHeight: "100px" }} // Hauteur minimale pour éviter le CLS
     >
-      {/* État de chargement */}
-      <div className={`absolute inset-0 bg-primary/5 flex items-center justify-center z-10 ${loadingAnimationClass}`}>
-        <div className="text-center">
-          <svg
-            className="w-8 h-8 text-primary animate-spin mx-auto"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p className="text-primary-dark text-xs mt-2 font-sans">
-            Chargement de la carte...
-          </p>
-        </div>
-      </div>
+      {shouldLoad && (
+        <iframe
+          src={src}
+          title={title}
+          className={`border-0 ${iframeClassName}`}
+          allowFullScreen
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          onLoad={handleIframeLoad}
+          onError={handleIframeError}
+        />
+      )}
 
-      {/* État d'erreur */}
-      {hasError && (
-        <div className="absolute inset-0 bg-danger/5 flex items-center justify-center z-10 animate-fade-in">
-          <div className="text-center p-4">
-            <svg
-              className="w-8 h-8 text-danger mx-auto"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              ></path>
-            </svg>
-            <p className="text-danger text-sm mt-2 font-medium">
-              Impossible de charger la carte
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center">
+            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-3"></div>
+            <p className="text-sm text-primary-dark animate-pulse">
+              Chargement de la carte...
             </p>
-            <button
-              className="mt-2 text-xs text-primary-dark underline"
-              onClick={() => window.open(src, "_blank")}
-            >
-              Ouvrir dans Google Maps
-            </button>
           </div>
         </div>
       )}
 
-      {/* Iframe de la carte avec chargement paresseux natif */}
-      {shouldLoad && (
-        <iframe
-          ref={mapRef}
-          title={title}
-          className={`border-0 w-full h-full transition-opacity duration-300 ${
-            isLoading ? "opacity-0" : "opacity-100"
-          } ${iframeClassName}`}
-          src={src}
-          allowFullScreen
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-          onLoad={handleMapLoad}
-          onError={handleMapError}
-        ></iframe>
+      {hasError && loadAttempts >= 3 && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm">
+          <div className="text-center p-4">
+            <p className="text-red-500 mb-2">Impossible de charger la carte</p>
+            <button
+              onClick={() => {
+                setLoadAttempts(0)
+                setShouldLoad(true)
+                setIsLoading(true)
+                setHasError(false)
+              }}
+              className="text-primary hover:text-primary-dark underline"
+            >
+              Réessayer
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )

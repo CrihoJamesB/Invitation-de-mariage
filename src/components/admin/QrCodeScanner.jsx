@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef, useCallback } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Html5Qrcode } from "html5-qrcode"
 import guestService from "../../firebase/guestService"
 import Card from "../common/Card"
 import Button from "../common/Button"
+import { useError } from "../../App"
 
 /**
  * Composant de scanner QR code pour le contrôle d'accès au mariage
- * Permet de scanner les QR codes des invités et d'afficher leurs informations
+ * Version simplifiée pour éviter les problèmes de DOM
  */
 const QrCodeScanner = () => {
   const [scanning, setScanning] = useState(false)
@@ -14,56 +15,52 @@ const QrCodeScanner = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [scanHistory, setScanHistory] = useState([])
-  const [cameras, setCameras] = useState([])
-  const [selectedCamera, setSelectedCamera] = useState("")
+  const scannerRef = useRef(null)
   const html5QrCodeRef = useRef(null)
-  const scannerContainerRef = useRef(null)
 
-  // Récupérer la liste des caméras disponibles
-  const fetchCameras = useCallback(async () => {
-    try {
-      const devices = await Html5Qrcode.getCameras()
-      if (devices && devices.length) {
-        setCameras(devices)
-        setSelectedCamera(devices[0].id)
-      }
-    } catch (err) {
-      console.error("Erreur lors de la récupération des caméras:", err)
-    }
-  }, [])
+  // Utiliser le contexte global d'erreur
+  const { setError: setGlobalError } = useError()
 
-  // Charger les caméras au démarrage
+  // Nettoyer le scanner lorsqu'on quitte le composant
   useEffect(() => {
-    fetchCameras()
-  }, [fetchCameras])
+    return () => {
+      if (html5QrCodeRef.current && scanning) {
+        try {
+          html5QrCodeRef.current.stop().catch((err) => {
+            console.warn("Nettoyage du scanner:", err)
+          })
+        } catch (error) {
+          console.warn("Erreur lors du nettoyage du scanner:", error)
+        }
+      }
+    }
+  }, [scanning])
 
-  // Gestionnaire de succès du scan
-  const handleScanSuccess = useCallback(async (decodedText) => {
+  // Fonction pour traiter le résultat du scan
+  const handleScanSuccess = async (decodedText) => {
     setLoading(true)
     setError(null)
 
     try {
-      // Récupérer les informations de l'invité depuis Firestore
+      console.log("QR Code scanné:", decodedText)
       const guestId = decodedText
-      console.log("QR Code scanné avec succès:", guestId)
       const guest = await guestService.getGuestById(guestId)
 
       if (!guest) {
         setError("Invité non trouvé. QR code invalide.")
         setGuestInfo(null)
-        setLoading(false)
         return
       }
 
       setGuestInfo(guest)
 
-      // Enregistrer le scan dans Firestore
+      // Enregistrer le scan
       await guestService.recordScan(guestId, {
         timestamp: new Date(),
         location: "Entrée principale",
       })
 
-      // Mettre à jour l'historique des scans
+      // Mettre à jour l'historique
       setScanHistory((prev) => [
         {
           id: guestId,
@@ -75,135 +72,126 @@ const QrCodeScanner = () => {
         ...prev,
       ])
 
-      // Jouer un son de succès
+      // Jouer un son
       try {
         const audio = new Audio()
         audio.src =
           "https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3"
-        audio.play().catch((e) => console.log("Impossible de jouer le son:", e))
-      } catch (error) {
-        console.error("Erreur lors de la lecture du son:", error)
+        audio.play().catch((e) => console.warn("Son non joué:", e))
+      } catch (e) {
+        console.warn("Erreur audio:", e)
       }
     } catch (error) {
-      console.error("Erreur lors du traitement du scan:", error)
+      console.error("Erreur scan:", error)
       setError(`Erreur: ${error.message}`)
+
+      // Si l'erreur contient "BLOCKED_BY_CLIENT", c'est probablement un bloqueur de pub
+      if (error.message && error.message.includes("BLOCKED_BY_CLIENT")) {
+        setGlobalError({
+          message: "Demandes bloquées par un bloqueur de publicités",
+          details:
+            "Votre bloqueur de publicités (comme uBlock Origin, AdBlock, etc.) empêche l'application de fonctionner correctement. Veuillez désactiver votre bloqueur de publicités pour ce site et rafraîchir la page.",
+        })
+      }
     } finally {
       setLoading(false)
     }
-  }, [])
+  }
 
-  // Fonction pour arrêter le scanner en toute sécurité
-  const stopScanner = useCallback(async () => {
-    if (html5QrCodeRef.current) {
-      try {
-        await html5QrCodeRef.current.stop()
-        html5QrCodeRef.current = null
-      } catch (err) {
-        console.error("Erreur lors de l'arrêt du scanner:", err)
-      }
-    }
-    setScanning(false)
-  }, [])
+  // Démarrer le scanner
+  const startScanner = async () => {
+    // Réinitialiser les états
+    setError(null)
+    setScanning(true)
 
-  // Fonction pour démarrer le scanner
-  const startScanner = useCallback(async () => {
     try {
-      setScanning(true)
-      setError(null)
-      setGuestInfo(null)
-
-      // Nettoyer toute instance précédente
-      await stopScanner()
-
-      // Vérifier si le conteneur existe et a des dimensions
-      if (!scannerContainerRef.current) {
-        setError("Conteneur du scanner non trouvé.")
+      // Vérifier si l'élément existe
+      if (!scannerRef.current) {
+        setError("Élément scanner non trouvé")
         setScanning(false)
         return
       }
-
-      // S'assurer que le conteneur a des dimensions avant de continuer
-      const containerWidth = scannerContainerRef.current.offsetWidth
-      const containerHeight = scannerContainerRef.current.offsetHeight
-
-      if (containerWidth < 100 || containerHeight < 100) {
-        setError(
-          `Dimensions du conteneur trop petites: ${containerWidth}x${containerHeight}px`
-        )
-        setScanning(false)
-        return
-      }
-
-      console.log(
-        `Dimensions du scanner: ${containerWidth}x${containerHeight}px`
-      )
 
       // Créer une nouvelle instance du scanner
-      html5QrCodeRef.current = new Html5Qrcode("reader", {
-        verbose: false,
-        formatsToSupport: ["QR_CODE"],
-      })
-
-      const config = {
-        fps: 10,
-        qrbox: {
-          width: Math.min(200, containerWidth - 50),
-          height: Math.min(200, containerHeight - 50),
-        },
-        aspectRatio: 1.0,
-        disableFlip: false,
-        experimentalFeatures: {
-          useBarCodeDetectorIfSupported: true,
-        },
-      }
-
-      console.log("Configuration du scanner:", config)
-      console.log("Caméra sélectionnée:", selectedCamera)
-
-      // Utiliser la caméra sélectionnée ou la caméra par défaut
-      const cameraId = selectedCamera || true
+      html5QrCodeRef.current = new Html5Qrcode("reader")
 
       await html5QrCodeRef.current.start(
-        cameraId,
-        config,
+        { facingMode: "environment" }, // Utiliser la caméra arrière par défaut
+        {
+          fps: 10,
+          qrbox: 250,
+        },
         (decodedText) => {
-          console.log("Code QR détecté:", decodedText)
-          if (html5QrCodeRef.current) {
-            html5QrCodeRef.current
-              .stop()
-              .then(() => {
-                handleScanSuccess(decodedText)
-              })
-              .catch((err) => {
-                console.error("Erreur lors de l'arrêt du scanner:", err)
-              })
-              .finally(() => {
-                setScanning(false)
-              })
-          }
+          // Arrêter le scanner dès qu'un code est trouvé
+          html5QrCodeRef.current
+            .stop()
+            .then(() => {
+              setScanning(false)
+              handleScanSuccess(decodedText)
+            })
+            .catch((err) => {
+              console.error("Erreur d'arrêt:", err)
+              setScanning(false)
+            })
         },
         (errorMessage) => {
-          // Ignorer les erreurs de scan en cours qui sont normales
-          if (
-            !errorMessage.includes("No MultiFormat Readers were able to detect")
-          ) {
-            console.log("Erreur de scan:", errorMessage)
+          // Ignorer les erreurs normales de détection
+          if (!errorMessage.includes("MultiFormat")) {
+            console.debug(errorMessage)
           }
         }
       )
     } catch (error) {
-      console.error("Erreur d'initialisation:", error)
-      setError(`Erreur lors de la préparation du scanner: ${error.message}`)
+      console.error("Erreur au démarrage:", error)
+      if (error.toString().includes("Permission")) {
+        setError("Veuillez autoriser l'accès à votre caméra")
+      } else {
+        setError(`Erreur: ${error.toString()}`)
+      }
       setScanning(false)
     }
-  }, [handleScanSuccess, selectedCamera, stopScanner])
+  }
 
-  // Nettoyer le scanner à la démonture du composant
-  useEffect(() => {
-    return () => {
-      stopScanner()
+  // Arrêter le scanner
+  const stopScanner = () => {
+    if (html5QrCodeRef.current) {
+      html5QrCodeRef.current
+        .stop()
+        .then(() => {
+          setScanning(false)
+          html5QrCodeRef.current = null
+        })
+        .catch((err) => {
+          console.error("Erreur lors de l'arrêt:", err)
+          setScanning(false)
+        })
+    } else {
+      setScanning(false)
     }
-  }, [stopScanner])
+  }
+
+  // Tester avec un code simulé
+  const testScan = () => {
+    const mockGuestId = "famille-danielle_louis-martin"
+    handleScanSuccess(mockGuestId)
+  }
+
+  // Rafraîchir la page pour essayer de résoudre les problèmes de bloqueur de publicités
+  const handleRefresh = () => {
+    window.location.reload()
+  }
+
+  // Désactiver le bloqueur d'annonces
+  const handleDisableAdBlocker = () => {
+    setGlobalError({
+      message: "Comment désactiver votre bloqueur de publicités",
+      details: `
+1. Trouvez l'icône du bloqueur de publicités dans votre navigateur (généralement en haut à droite)
+2. Cliquez sur l'icône et sélectionnez "Désactiver sur ce site" ou "Mettre en pause"
+3. Rechargez la page après avoir désactivé le bloqueur
+      `,
+    })
+  }
 
   return (
     <Card
@@ -215,104 +203,32 @@ const QrCodeScanner = () => {
           Scanner QR Code
         </h2>
       </Card.Header>
-      <Card.Body className="p-4">
-        {/* Sélection de la caméra */}
-        {cameras.length > 1 && (
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-primary-dark mb-1">
-              Sélectionner une caméra:
-            </label>
-            <select
-              value={selectedCamera}
-              onChange={(e) => setSelectedCamera(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary bg-white text-primary-dark"
-              disabled={scanning}
-            >
-              {cameras.map((camera) => (
-                <option
-                  key={camera.id}
-                  value={camera.id}
-                >
-                  {camera.label || `Caméra ${camera.id.slice(0, 5)}...`}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
 
+      <Card.Body className="p-4">
         {/* Zone de scan */}
         <div className="mb-6">
           <div
             id="reader"
-            ref={scannerContainerRef}
+            ref={scannerRef}
             style={{
               width: "100%",
-              minHeight: "256px",
-              height: "256px",
-              position: "relative",
+              height: "300px",
+              border: scanning ? "2px solid #4f46e5" : "1px solid #e5e7eb",
+              borderRadius: "0.375rem",
               overflow: "hidden",
             }}
-            className={`max-w-md mx-auto rounded bg-gray-100 flex items-center justify-center ${
-              scanning ? "border-2 border-primary" : ""
-            }`}
-          >
-            {!scanning && (
-              <div className="text-center text-muted">
-                <svg
-                  className="w-12 h-12 mx-auto mb-2 opacity-50"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-                <p>Cliquez sur le bouton ci-dessous pour activer le scanner</p>
-              </div>
-            )}
-          </div>
+            className="max-w-md mx-auto"
+          />
 
-          <div className="mt-4 text-center">
+          <div className="mt-4 flex justify-center gap-2">
             {!scanning ? (
-              <Button
-                variant="primary"
-                onClick={startScanner}
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                </svg>
-                Activer la caméra
-              </Button>
-            ) : (
-              <div className="flex flex-col items-center">
-                <p className="text-sm text-primary mb-2">Scan en cours...</p>
+              <>
                 <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={stopScanner}
+                  variant="primary"
+                  onClick={startScanner}
                 >
                   <svg
-                    className="w-4 h-4 mr-1"
+                    className="w-5 h-5 mr-2"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -321,25 +237,40 @@ const QrCodeScanner = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth="2"
-                      d="M6 18L18 6M6 6l12 12"
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-                  Arrêter
+                  Scanner
                 </Button>
-              </div>
+                <Button
+                  variant="secondary"
+                  onClick={testScan}
+                >
+                  Tester
+                </Button>
+              </>
+            ) : (
+              <Button
+                variant="secondary"
+                onClick={stopScanner}
+              >
+                Arrêter
+              </Button>
             )}
           </div>
         </div>
 
-        {/* Résultats du scan */}
+        {/* États et résultats */}
         {loading && (
           <div className="text-center py-4">
-            <div
-              className="spinner-border text-primary"
-              role="status"
-            >
-              <span className="visually-hidden">Chargement...</span>
-            </div>
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+            <p className="mt-2 text-sm">Chargement...</p>
           </div>
         )}
 
@@ -347,10 +278,54 @@ const QrCodeScanner = () => {
           <div className="bg-red-100 text-red-700 p-4 rounded mb-4">
             <p className="font-semibold">Erreur</p>
             <p>{error}</p>
+
+            {/* Ajouter des options pour résoudre les problèmes courants */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefresh}
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  />
+                </svg>
+                Actualiser
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDisableAdBlocker}
+              >
+                <svg
+                  className="w-4 h-4 mr-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                Problème de bloqueur?
+              </Button>
+            </div>
           </div>
         )}
 
-        {guestInfo && (
+        {guestInfo && !loading && (
           <div className="bg-green-50 rounded p-4 mb-4 border-l-4 border-green-500">
             <div className="flex items-start">
               <div className="mr-4">

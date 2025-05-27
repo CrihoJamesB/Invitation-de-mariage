@@ -71,6 +71,19 @@ const guestService = {
   // Récupérer un invité par son ID
   async getGuestById(guestId) {
     try {
+      // Vérifier si guestId est une URL et en extraire l'identifiant
+      if (guestId.includes("http") || guestId.includes("/")) {
+        // Extraire le dernier segment de l'URL comme identifiant
+        const urlSegments = guestId.split("/")
+        guestId = urlSegments[urlSegments.length - 1]
+
+        // S'assurer que l'ID est valide pour Firestore
+        if (!guestId || guestId.includes("/")) {
+          console.error(`ID d'invité invalide extrait de l'URL: ${guestId}`)
+          return null
+        }
+      }
+
       const guestDoc = await getDoc(doc(db, GUESTS_COLLECTION, guestId))
       return guestDoc.exists() ? guestDoc.data() : null
     } catch (error) {

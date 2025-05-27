@@ -90,68 +90,78 @@ const GuestListItem = ({
   return (
     <Card
       variant="elegant"
-      className="overflow-visible"
+      className="overflow-visible w-full transition-all duration-300 hover:shadow-lg"
     >
-      <Card.Body>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <Card.Body className="p-3 sm:p-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 md:gap-4">
           {/* Informations de l'invité */}
-          <div>
-            <h3 className="font-elegant text-lg text-primary-dark">
-              {guest.name}
-              {hasBeenScanned && (
-                <span
-                  className="ml-2 text-xs font-normal px-2 py-1 rounded-full text-white"
-                  style={{ backgroundColor: tableColor }}
-                >
-                  Scanné {scanCount > 1 ? `${scanCount} fois` : ""}
-                </span>
-              )}
-            </h3>
-            <div className="flex items-center mt-1">
+          <div className="flex-grow w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h3 className="font-elegant text-lg text-primary-dark break-words flex flex-wrap items-center">
+                <span className="mr-2">{guest.name}</span>
+                {hasBeenScanned && (
+                  <span
+                    className="mt-1 sm:mt-0 text-xs font-normal px-2 py-1 rounded-full text-white whitespace-nowrap"
+                    style={{ backgroundColor: tableColor }}
+                  >
+                    Scanné {scanCount > 1 ? `${scanCount} fois` : ""}
+                  </span>
+                )}
+              </h3>
+
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-light/20 text-primary-dark sm:hidden">
+                {guest.count} {guest.count > 1 ? "personnes" : "personne"}
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 mt-2">
               <span className="flex items-center text-muted text-sm">
-                Table:
+                <span className="mr-1">Table:</span>
                 <span
-                  className="ml-1 px-2 py-0.5 rounded-full text-white font-medium"
+                  className="px-2 py-0.5 rounded-full text-white font-medium text-xs"
                   style={{ backgroundColor: tableColor }}
                 >
                   {group}
                 </span>
               </span>
-              <span className="mx-2 text-primary/20">•</span>
-              <span className="text-muted text-sm">
+
+              <span className="hidden sm:inline mx-2 text-primary/20">•</span>
+
+              <span className="text-muted text-sm hidden sm:inline">
                 {guest.count > 1 ? `${guest.count} personnes` : "1 personne"}
               </span>
 
               {/* Indicateur de scan */}
               {hasBeenScanned && lastScan && (
-                <div className="mt-1.5 flex items-center">
-                  <span className="text-xs bg-success/20 text-success py-0.5 px-2 rounded-full flex items-center">
-                    <svg
-                      className="w-3 h-3 mr-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M5 13l4 4L19 7"
-                      ></path>
-                    </svg>
+                <span className="text-xs bg-success/20 text-success py-0.5 px-2 rounded-full flex items-center ml-0 sm:ml-2 mt-1 sm:mt-0">
+                  <svg
+                    className="w-3 h-3 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5 13l4 4L19 7"
+                    ></path>
+                  </svg>
+                  <span className="whitespace-nowrap">
                     Dernier scan: {lastScan}
                   </span>
-                </div>
+                </span>
               )}
             </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2 mt-3 lg:mt-0">
             {!showQR ? (
               <Button
                 variant="outline"
                 size="sm"
+                className="flex-grow xs:flex-grow-0"
                 onClick={handleGenerate}
                 disabled={isGenerating}
                 icon={
@@ -192,12 +202,15 @@ const GuestListItem = ({
                   )
                 }
               >
-                {isGenerating ? "Génération..." : "Générer QR Code"}
+                <span className="truncate">
+                  {isGenerating ? "Génération..." : "QR Code"}
+                </span>
               </Button>
             ) : (
               <Button
                 variant="outline"
                 size="sm"
+                className="flex-grow xs:flex-grow-0"
                 onClick={() => setShowQR(false)}
                 icon={
                   <svg
@@ -222,6 +235,7 @@ const GuestListItem = ({
             <Button
               variant="primary"
               size="sm"
+              className="flex-grow xs:flex-grow-0"
               onClick={handleShare}
               icon={
                 <svg
@@ -233,65 +247,68 @@ const GuestListItem = ({
                 </svg>
               }
             >
-              Partager
+              <span className="truncate">Partager</span>
             </Button>
 
-            {/* Bouton Modifier */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(guest)}
-              icon={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  ></path>
-                </svg>
-              }
-            >
-              Modifier
-            </Button>
-
-            {/* Bouton Supprimer */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-danger hover:bg-danger/10"
-              onClick={() => {
-                if (
-                  window.confirm(
-                    `Voulez-vous vraiment supprimer l'invité "${guest.name}" ?`
-                  )
-                ) {
-                  onDelete(guest)
+            <div className="flex flex-wrap items-center gap-2 w-full xs:w-auto">
+              {/* Bouton Modifier */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-grow xs:flex-grow-0"
+                onClick={() => onEdit(guest)}
+                icon={
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    ></path>
+                  </svg>
                 }
-              }}
-              icon={
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                  ></path>
-                </svg>
-              }
-            >
-              Supprimer
-            </Button>
+              >
+                <span className="truncate">Modifier</span>
+              </Button>
+
+              {/* Bouton Supprimer */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-danger hover:bg-danger/10 flex-grow xs:flex-grow-0"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `Voulez-vous vraiment supprimer l'invité "${guest.name}" ?`
+                    )
+                  ) {
+                    onDelete(guest)
+                  }
+                }}
+                icon={
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    ></path>
+                  </svg>
+                }
+              >
+                <span className="truncate">Supprimer</span>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -299,7 +316,7 @@ const GuestListItem = ({
         {showQR && (
           <div className="mt-4 pt-4 border-t border-gray-100">
             <div className="flex flex-col sm:flex-row items-center gap-6">
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 mx-auto sm:mx-0">
                 <QRCode
                   id={`qr-${guestId}`}
                   value={invitationUrl}
@@ -312,7 +329,7 @@ const GuestListItem = ({
                 />
               </div>
 
-              <div className="flex-grow space-y-4">
+              <div className="flex-grow space-y-4 w-full">
                 <div>
                   <h4 className="font-sans text-sm font-medium text-primary-dark">
                     Lien d&apos;invitation
@@ -385,10 +402,15 @@ GuestListItem.propTypes = {
   guest: PropTypes.shape({
     name: PropTypes.string.isRequired,
     count: PropTypes.number.isRequired,
-    message: PropTypes.string.isRequired,
+    message: PropTypes.string,
+    scanned: PropTypes.bool,
+    scanCount: PropTypes.number,
+    lastScan: PropTypes.object,
   }).isRequired,
   group: PropTypes.string.isRequired,
   onShare: PropTypes.func,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
   baseUrl: PropTypes.string,
 }
 

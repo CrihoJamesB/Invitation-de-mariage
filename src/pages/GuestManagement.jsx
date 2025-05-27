@@ -43,10 +43,10 @@ const GuestManagement = () => {
         }
 
         // Enrichir les données des invités avec les informations de table
-        const enrichedGuests = allGuests.map(guest => {
+        const enrichedGuests = allGuests.map((guest) => {
           // Extraire le nom de la table à partir de l'ID de l'invité
           const tableName = guest.id.split("_")[0]
-          
+
           // Rechercher la table correspondante dans invitationInfo
           const tableInfo = invitationInfo.tables.find(
             (table) => table.name.toLowerCase() === tableName.toLowerCase()
@@ -65,7 +65,9 @@ const GuestManagement = () => {
           (sum, guest) => sum + guest.count,
           0
         )
-        const scannedGuests = enrichedGuests.filter((guest) => guest.scanned).length
+        const scannedGuests = enrichedGuests.filter(
+          (guest) => guest.scanned
+        ).length
 
         // Mettre à jour les statistiques
         setStats({
@@ -88,14 +90,14 @@ const GuestManagement = () => {
             // Extraire le nom de la table potentielle
             const guestId = guestService.generateGuestId(groupName, guest.name)
             const tableName = guestId.split("_")[0]
-            
+
             // Rechercher la table correspondante dans invitationInfo
             const tableInfo = invitationInfo.tables.find(
               (table) => table.name.toLowerCase() === tableName.toLowerCase()
             )
 
-            initialList.push({ 
-              ...guest, 
+            initialList.push({
+              ...guest,
               group: groupName,
               tableName: tableInfo ? tableInfo.name : "Table inconnue",
               tableColor: tableInfo ? tableInfo.color : "#4CAF50",
@@ -250,23 +252,25 @@ const GuestManagement = () => {
   return (
     <div className="bg-secondary min-h-screen pb-10">
       {/* En-tête */}
-      <header className="bg-primary text-white py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex justify-between items-center">
+      <header className="bg-primary text-white py-6 sm:py-8 px-3 sm:px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="font-elegant text-3xl">Gestion des Invités</h1>
-              <p className="text-white/70 mt-2">
+              <h1 className="font-elegant text-2xl sm:text-3xl">
+                Gestion des Invités
+              </h1>
+              <p className="text-white/70 mt-1 sm:mt-2 text-sm sm:text-base">
                 Gérez les invitations pour le mariage de Fiston Zaka et Vino
                 Banza
               </p>
             </div>
-            <div>
+            <div className="w-full sm:w-auto">
               <a
                 href="/qr-scanner"
-                className="inline-flex items-center px-4 py-2 bg-white text-primary rounded-md shadow hover:bg-primary/10 transition-colors"
+                className="inline-flex items-center justify-center w-full sm:w-auto px-4 py-2 bg-white text-primary rounded-md shadow hover:bg-primary/10 transition-colors"
               >
                 <svg
-                  className="w-5 h-5 mr-2"
+                  className="w-5 h-5 mr-2 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -286,14 +290,14 @@ const GuestManagement = () => {
       </header>
 
       {/* Tableaux de statistiques */}
-      <div className="max-w-4xl mx-auto px-4 -mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 -mt-4 sm:-mt-6">
+        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <StatCard
             title="Total des invités"
             value={stats.totalGuests}
             icon={
               <svg
-                className="w-8 h-8 text-primary"
+                className="w-6 sm:w-8 h-6 sm:h-8 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -313,7 +317,7 @@ const GuestManagement = () => {
             value={stats.totalPeople}
             icon={
               <svg
-                className="w-8 h-8 text-primary"
+                className="w-6 sm:w-8 h-6 sm:h-8 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -336,7 +340,7 @@ const GuestManagement = () => {
             )}
             icon={
               <svg
-                className="w-8 h-8 text-primary"
+                className="w-6 sm:w-8 h-6 sm:h-8 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -359,7 +363,7 @@ const GuestManagement = () => {
             )}
             icon={
               <svg
-                className="w-8 h-8 text-primary"
+                className="w-6 sm:w-8 h-6 sm:h-8 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -377,12 +381,12 @@ const GuestManagement = () => {
       </div>
 
       {/* Filtres et recherche */}
-      <div className="max-w-4xl mx-auto px-4 mt-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-6 sm:mt-8">
         <Card
           variant="default"
-          className="p-4"
+          className="p-3 sm:p-4"
         >
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
             {/* Recherche */}
             <div className="flex-grow">
               <div className="relative">
@@ -464,7 +468,7 @@ const GuestManagement = () => {
 
       {/* Formulaire d'ajout/modification d'invité */}
       {showForm && (
-        <div className="max-w-4xl mx-auto px-4 mt-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-6">
           <GuestForm
             guest={editingGuest}
             groups={groupsList}
@@ -475,19 +479,41 @@ const GuestManagement = () => {
       )}
 
       {/* Liste des invités */}
-      <div className="max-w-4xl mx-auto px-4 mt-6">
-        <h2 className="font-elegant text-2xl text-primary-dark mb-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-6">
+        <h2 className="font-elegant text-xl sm:text-2xl text-primary-dark mb-3 sm:mb-4">
           {filteredGuests.length}{" "}
           {filteredGuests.length > 1 ? "invités trouvés" : "invité trouvé"}
         </h2>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {loading ? (
             <Card
               variant="flat"
-              className="p-8 text-center"
+              className="p-6 sm:p-8 text-center"
             >
-              <p className="text-muted">Chargement des invités...</p>
+              <div className="flex items-center justify-center">
+                <svg
+                  className="animate-spin h-8 w-8 text-primary"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <p className="ml-3 text-muted">Chargement des invités...</p>
+              </div>
             </Card>
           ) : (
             <>
@@ -505,11 +531,11 @@ const GuestManagement = () => {
               {filteredGuests.length === 0 && (
                 <Card
                   variant="flat"
-                  className="p-8 text-center"
+                  className="p-6 sm:p-8 text-center"
                 >
                   <div className="text-muted">
                     <svg
-                      className="w-12 h-12 mx-auto mb-4 opacity-50"
+                      className="w-10 sm:w-12 h-10 sm:h-12 mx-auto mb-3 sm:mb-4 opacity-50"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -543,15 +569,21 @@ const StatCard = ({ title, value, percentage, icon }) => (
     variant="elegant"
     className="transform hover:-translate-y-1 transition-transform duration-300"
   >
-    <Card.Body className="p-5">
+    <Card.Body className="p-3 sm:p-5">
       <div className="flex items-center">
-        <div className="mr-4 bg-primary/10 p-3 rounded-full">{icon}</div>
+        <div className="mr-3 sm:mr-4 bg-primary/10 p-2 sm:p-3 rounded-full">
+          {icon}
+        </div>
         <div>
-          <h3 className="text-lg font-medium text-primary-dark">{title}</h3>
+          <h3 className="text-sm sm:text-lg font-medium text-primary-dark">
+            {title}
+          </h3>
           <div className="flex items-end">
-            <p className="text-2xl font-semibold text-primary-dark">{value}</p>
+            <p className="text-xl sm:text-2xl font-semibold text-primary-dark">
+              {value}
+            </p>
             {percentage !== undefined && (
-              <span className="ml-2 text-sm text-primary/80 mb-1">
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm text-primary/80 mb-1">
                 ({percentage}%)
               </span>
             )}

@@ -1,10 +1,11 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import PropTypes from "prop-types"
 import { generateGuestId } from "../../data/guests"
 import { invitationInfo } from "../../data/invitationInfo"
 import Button from "../common/Button"
 import QRCode from "../common/QRCode"
 import Card from "../common/Card"
+import { formatTimestamp } from "../../utils/dateUtils"
 
 /**
  * Composant affichant un invité dans la liste d'administration
@@ -81,6 +82,11 @@ const GuestListItem = ({
     }
   }
 
+  // Déterminer si l'invité a été scanné
+  const hasBeenScanned = guest.scanned || false
+  const scanCount = guest.scanCount || 0
+  const lastScan = guest.lastScan ? formatTimestamp(guest.lastScan) : null
+
   return (
     <Card
       variant="elegant"
@@ -92,6 +98,14 @@ const GuestListItem = ({
           <div>
             <h3 className="font-elegant text-lg text-primary-dark">
               {guest.name}
+              {hasBeenScanned && (
+                <span
+                  className="ml-2 text-xs font-normal px-2 py-1 rounded-full text-white"
+                  style={{ backgroundColor: tableColor }}
+                >
+                  Scanné {scanCount > 1 ? `${scanCount} fois` : ""}
+                </span>
+              )}
             </h3>
             <div className="flex items-center mt-1">
               <span className="flex items-center text-muted text-sm">
@@ -109,7 +123,7 @@ const GuestListItem = ({
               </span>
 
               {/* Indicateur de scan */}
-              {guest.scanned && (
+              {hasBeenScanned && lastScan && (
                 <div className="mt-1.5 flex items-center">
                   <span className="text-xs bg-success/20 text-success py-0.5 px-2 rounded-full flex items-center">
                     <svg
@@ -125,14 +139,8 @@ const GuestListItem = ({
                         d="M5 13l4 4L19 7"
                       ></path>
                     </svg>
-                    Scanné{" "}
-                    {guest.scanCount > 1 ? `(${guest.scanCount} fois)` : ""}
+                    Dernier scan: {lastScan}
                   </span>
-                  {guest.lastScan && (
-                    <span className="text-xs text-muted ml-2">
-                      {new Date(guest.lastScan.toDate()).toLocaleString()}
-                    </span>
-                  )}
                 </div>
               )}
             </div>

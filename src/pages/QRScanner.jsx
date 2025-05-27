@@ -3,6 +3,7 @@ import { Html5QrcodeScanner } from "html5-qrcode"
 import guestService from "../firebase/guestService"
 import Button from "../components/common/Button"
 import Card from "../components/common/Card"
+import { invitationInfo } from "../data/invitationInfo"
 
 /**
  * Page permettant de scanner les QR codes des invitations
@@ -13,6 +14,7 @@ const QRScanner = () => {
   const [guestInfo, setGuestInfo] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [tableColor, setTableColor] = useState("#4CAF50") // Couleur par défaut
 
   const processQrCode = useCallback(async (decodedText) => {
     try {
@@ -58,10 +60,29 @@ const QRScanner = () => {
       // Récupérer l'historique des scans pour cet invité
       const scanHistory = await guestService.getGuestScans(guestId)
 
+      // Déterminer la table et sa couleur
+      let tableInfo = null
+
+      // Extraire le nom de la table à partir de l'ID de l'invité
+      // Format attendu: table_nom-invite
+      const tableName = guestId.split("_")[0]
+
+      // Rechercher la table correspondante dans invitationInfo
+      tableInfo = invitationInfo.tables.find(
+        (table) => table.name.toLowerCase() === tableName.toLowerCase()
+      )
+
+      // Définir la couleur en fonction de la table trouvée
+      if (tableInfo) {
+        setTableColor(tableInfo.color)
+      }
+
       setGuestInfo({
         ...guestDetails,
         scanHistory,
         lastScanId: result,
+        tableName: tableInfo ? tableInfo.name : "Table inconnue",
+        tableColor: tableInfo ? tableInfo.color : "#4CAF50",
       })
     } catch (error) {
       console.error("Erreur lors du traitement du QR code:", error)
@@ -127,6 +148,7 @@ const QRScanner = () => {
     setGuestInfo(null)
     setError("")
     setIsScanning(true)
+    setTableColor("#4CAF50") // Réinitialiser la couleur par défaut
   }, [])
 
   // Formatter la date pour un affichage plus lisible
@@ -152,6 +174,32 @@ const QRScanner = () => {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }).format(timestamp)
+    }
+
+    return "Format de date inconnu"
+  }, [])
+
+  // Extraire le jour et l'heure d'un timestamp pour un affichage plus compact
+  const formatTime = useCallback((timestamp) => {
+    if (!timestamp) return "N/A"
+
+    // Si c'est un timestamp Firebase
+    if (timestamp.toDate && typeof timestamp.toDate === "function") {
+      const date = timestamp.toDate()
+      return new Intl.DateTimeFormat("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      }).format(date)
+    }
+
+    // Si c'est déjà une date JavaScript
+    if (timestamp instanceof Date) {
+      return new Intl.DateTimeFormat("fr-FR", {
         hour: "2-digit",
         minute: "2-digit",
         second: "2-digit",
@@ -222,28 +270,47 @@ const QRScanner = () => {
                   </div>
                 ) : guestInfo ? (
                   <div className="py-4">
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="text-xl font-semibold block">
-                            {guestInfo.name}
-                          </span>
-                          <span className="block">
-                            Groupe: {guestInfo.group}
-                          </span>
-                          <span className="block mt-1">
-                            {guestInfo.count > 1
-                              ? `${guestInfo.count} personnes`
-                              : "1 personne"}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          <span className="block font-bold text-2xl">
-                            {guestInfo.scanCount || 1}
-                          </span>
-                          <span className="text-sm">
-                            {guestInfo.scanCount > 1 ? "scans" : "scan"}
-                          </span>
+                    {/* Carte de résultat avec la couleur de la table */}
+                    <div
+                      className="border rounded mb-6 shadow-md"
+                      style={{
+                        backgroundColor: `${guestInfo.tableColor}10`,
+                        borderColor: guestInfo.tableColor,
+                      }}
+                    >
+                      <div className="p-4">
+                        <div className="flex justify-between items-center">
+                          <div className="text-left">
+                            <span className="text-xl font-semibold block">
+                              {guestInfo.name}
+                            </span>
+                            <span className="block mt-1">
+                              <span className="font-medium">Table:</span>{" "}
+                              {guestInfo.tableName}
+                            </span>
+                            <span className="block">
+                              <span className="font-medium">Groupe:</span>{" "}
+                              {guestInfo.group}
+                            </span>
+                            <span className="block mt-1">
+                              {guestInfo.count > 1
+                                ? `${guestInfo.count} personnes`
+                                : "1 personne"}
+                            </span>
+                          </div>
+                          <div
+                            className="text-right px-4 py-3 rounded-full"
+                            style={{
+                              backgroundColor: `${guestInfo.tableColor}30`,
+                            }}
+                          >
+                            <span className="block font-bold text-2xl">
+                              {guestInfo.scanCount || 1}
+                            </span>
+                            <span className="text-sm">
+                              {guestInfo.scanCount > 1 ? "scans" : "scan"}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -259,7 +326,10 @@ const QRScanner = () => {
                               <thead className="bg-gray-50">
                                 <tr>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Date et heure
+                                    Date
+                                  </th>
+                                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Heure
                                   </th>
                                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                     Scanné par
@@ -267,23 +337,59 @@ const QRScanner = () => {
                                 </tr>
                               </thead>
                               <tbody className="bg-white divide-y divide-gray-200">
-                                {guestInfo.scanHistory.map((scan, index) => (
-                                  <tr
-                                    key={scan.id || index}
-                                    className={
-                                      scan.id === guestInfo.lastScanId
-                                        ? "bg-green-50"
-                                        : ""
-                                    }
-                                  >
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                      {formatDate(scan.timestamp)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                      {scan.scannedBy || "Admin"}
-                                    </td>
-                                  </tr>
-                                ))}
+                                {guestInfo.scanHistory.map((scan, index) => {
+                                  // Extraire la date du timestamp
+                                  let dateObj = null
+                                  if (scan.timestamp && scan.timestamp.toDate) {
+                                    dateObj = scan.timestamp.toDate()
+                                  }
+
+                                  // Formater la date (juste la date)
+                                  const formattedDate = dateObj
+                                    ? new Intl.DateTimeFormat("fr-FR", {
+                                        day: "2-digit",
+                                        month: "2-digit",
+                                        year: "numeric",
+                                      }).format(dateObj)
+                                    : "N/A"
+
+                                  // Formater l'heure (juste l'heure)
+                                  const formattedTime = dateObj
+                                    ? new Intl.DateTimeFormat("fr-FR", {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        second: "2-digit",
+                                      }).format(dateObj)
+                                    : "N/A"
+
+                                  return (
+                                    <tr
+                                      key={scan.id || index}
+                                      className={
+                                        scan.id === guestInfo.lastScanId
+                                          ? "bg-opacity-20"
+                                          : ""
+                                      }
+                                      style={
+                                        scan.id === guestInfo.lastScanId
+                                          ? {
+                                              backgroundColor: `${guestInfo.tableColor}20`,
+                                            }
+                                          : {}
+                                      }
+                                    >
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {formattedDate}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {formattedTime}
+                                      </td>
+                                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                        {scan.scannedBy || "Admin"}
+                                      </td>
+                                    </tr>
+                                  )
+                                })}
                               </tbody>
                             </table>
                           </div>
@@ -294,6 +400,10 @@ const QRScanner = () => {
                       variant="primary"
                       className="mt-4"
                       onClick={resetScanner}
+                      style={{
+                        backgroundColor: guestInfo.tableColor,
+                        borderColor: guestInfo.tableColor,
+                      }}
                     >
                       <svg
                         className="w-5 h-5 mr-2"

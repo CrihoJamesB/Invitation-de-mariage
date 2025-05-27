@@ -6,6 +6,7 @@ import Card from "../components/common/Card"
 import Button from "../components/common/Button"
 import guestService from "../firebase/guestService"
 import PropTypes from "prop-types"
+import { invitationInfo } from "../data/invitationInfo"
 
 /**
  * Page d'administration pour la gestion des invités
@@ -41,13 +42,30 @@ const GuestManagement = () => {
           allGuests = await guestService.getAllGuests()
         }
 
+        // Enrichir les données des invités avec les informations de table
+        const enrichedGuests = allGuests.map(guest => {
+          // Extraire le nom de la table à partir de l'ID de l'invité
+          const tableName = guest.id.split("_")[0]
+          
+          // Rechercher la table correspondante dans invitationInfo
+          const tableInfo = invitationInfo.tables.find(
+            (table) => table.name.toLowerCase() === tableName.toLowerCase()
+          )
+
+          return {
+            ...guest,
+            tableName: tableInfo ? tableInfo.name : "Table inconnue",
+            tableColor: tableInfo ? tableInfo.color : "#4CAF50",
+          }
+        })
+
         // Calculer les statistiques
-        const totalGuests = allGuests.length
-        const totalPeople = allGuests.reduce(
+        const totalGuests = enrichedGuests.length
+        const totalPeople = enrichedGuests.reduce(
           (sum, guest) => sum + guest.count,
           0
         )
-        const scannedGuests = allGuests.filter((guest) => guest.scanned).length
+        const scannedGuests = enrichedGuests.filter((guest) => guest.scanned).length
 
         // Mettre à jour les statistiques
         setStats({
@@ -58,8 +76,8 @@ const GuestManagement = () => {
         })
 
         // Mettre à jour la liste des invités
-        setGuestsData(allGuests)
-        setFilteredGuests(allGuests)
+        setGuestsData(enrichedGuests)
+        setFilteredGuests(enrichedGuests)
       } catch (error) {
         console.error("Erreur lors du chargement des invités:", error)
 
@@ -67,7 +85,21 @@ const GuestManagement = () => {
         const initialList = []
         Object.entries(guests).forEach(([groupName, groupGuests]) => {
           groupGuests.forEach((guest) => {
-            initialList.push({ ...guest, group: groupName })
+            // Extraire le nom de la table potentielle
+            const guestId = guestService.generateGuestId(groupName, guest.name)
+            const tableName = guestId.split("_")[0]
+            
+            // Rechercher la table correspondante dans invitationInfo
+            const tableInfo = invitationInfo.tables.find(
+              (table) => table.name.toLowerCase() === tableName.toLowerCase()
+            )
+
+            initialList.push({ 
+              ...guest, 
+              group: groupName,
+              tableName: tableInfo ? tableInfo.name : "Table inconnue",
+              tableColor: tableInfo ? tableInfo.color : "#4CAF50",
+            })
           })
         })
 

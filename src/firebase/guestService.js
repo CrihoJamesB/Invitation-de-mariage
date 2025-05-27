@@ -71,20 +71,10 @@ const guestService = {
   // Récupérer un invité par son ID
   async getGuestById(guestId) {
     try {
-      // Vérifier si guestId est une URL et en extraire l'identifiant
-      if (guestId.includes("http") || guestId.includes("/")) {
-        // Extraire le dernier segment de l'URL comme identifiant
-        const urlSegments = guestId.split("/")
-        guestId = urlSegments[urlSegments.length - 1]
-
-        // S'assurer que l'ID est valide pour Firestore
-        if (!guestId || guestId.includes("/")) {
-          console.error(`ID d'invité invalide extrait de l'URL: ${guestId}`)
-          return null
-        }
-      }
-
-      const guestDoc = await getDoc(doc(db, GUESTS_COLLECTION, guestId))
+      const sanitizedGuestId = this.sanitizeFirestoreId(guestId)
+      const guestDoc = await getDoc(
+        doc(db, GUESTS_COLLECTION, sanitizedGuestId)
+      )
       return guestDoc.exists() ? guestDoc.data() : null
     } catch (error) {
       console.error(
@@ -154,15 +144,18 @@ const guestService = {
   // Enregistrer un scan de QR code
   async recordScan(guestId, scanData) {
     try {
+      // Sanitiser l'ID pour éviter les problèmes de chemin Firestore
+      const sanitizedGuestId = this.sanitizeFirestoreId(guestId)
+
       // Ajouter l'entrée de scan
       const scanRef = await addDoc(collection(db, SCANS_COLLECTION), {
-        guestId,
+        guestId: sanitizedGuestId,
         timestamp: serverTimestamp(),
         ...scanData,
       })
 
       // Mettre à jour les informations de l'invité
-      const guestRef = doc(db, GUESTS_COLLECTION, guestId)
+      const guestRef = doc(db, GUESTS_COLLECTION, sanitizedGuestId)
       const guestDoc = await getDoc(guestRef)
 
       if (guestDoc.exists()) {
@@ -188,12 +181,16 @@ const guestService = {
   // Obtenir l'historique des scans pour un invité
   async getGuestScans(guestId) {
     try {
+      const sanitizedGuestId = this.sanitizeFirestoreId(guestId)
       const q = query(
         collection(db, SCANS_COLLECTION),
-        where("guestId", "==", guestId)
+        where("guestId", "==", sanitizedGuestId)
       )
       const scansSnapshot = await getDocs(q)
-      return scansSnapshot.docs.map((doc) => doc.data())
+      return scansSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
     } catch (error) {
       console.error(
         `Erreur lors de la récupération des scans pour l'invité ${guestId}:`,
@@ -219,6 +216,24 @@ const guestService = {
     const sanitizedGroup = group.replace(/\s+/g, "-").toLowerCase()
     const sanitizedName = name.replace(/\s+/g, "-").toLowerCase()
     return `${sanitizedGroup}_${sanitizedName}`
+  },
+
+  // Fonction utilitaire pour sanitiser les ID pour Firestore
+  sanitizeFirestoreId(id) {
+    // Retirer toute URL ou chemin qui pourrait causer des problèmes
+    if (id.includes("/")) {
+      // Si c'est une URL ou un chemin avec des /
+      const parts = id.split("/")
+      // Prendre la dernière partie non vide
+      for (let i = parts.length - 1; i >= 0; i--) {
+        if (parts[i].trim()) {
+          return parts[i].trim()
+        }
+      }
+    }
+
+    // Nettoyer les caractères non autorisés pour les ID Firestore
+    return id.replace(/[#.\/[\]]/g, "_")
   },
 }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import PropTypes from "prop-types"
 import QRCodeLibrary from "qrcode.react"
 
@@ -34,9 +34,7 @@ const QRCode = ({
   id = "",
 }) => {
   const [canvasRef, setCanvasRef] = useState(null)
-  const [containerId] = useState(
-    `qr-container-${Math.random().toString(36).substring(2, 10)}`
-  )
+  const containerRef = useRef(null)
 
   // Utiliser la couleur de la table si fournie
   const qrCodeColor = tableColor || fgColor
@@ -228,23 +226,10 @@ const QRCode = ({
     }
   }, [canvasRef, logoSrc, logoSize, size, bgColor])
 
-  // Utiliser useEffect pour récupérer la référence au canvas après le rendu
-  useEffect(() => {
-    // On utilise un timer pour s'assurer que le QRCode est bien rendu
-    const timer = setTimeout(() => {
-      const qrCanvas = document.querySelector(`#${containerId} canvas`)
-      if (qrCanvas) {
-        setCanvasRef(qrCanvas)
-      }
-    }, 100)
-
-    return () => clearTimeout(timer)
-  }, [containerId])
-
   return (
     <div
       className={`flex flex-col items-center ${className}`}
-      id={containerId}
+      ref={containerRef}
     >
       {title && (
         <h3
@@ -264,6 +249,7 @@ const QRCode = ({
         }}
       >
         <QRCodeLibrary
+          id={id}
           value={value}
           size={size}
           bgColor={bgColor}
@@ -271,32 +257,38 @@ const QRCode = ({
           level={level}
           includeMargin={includeMargin}
           renderAs="canvas"
-          id={id || `qr-${Math.random().toString(36).substr(2, 9)}`}
+          ref={(ref) => {
+            if (ref) {
+              setCanvasRef(ref.firstChild)
+            }
+          }}
         />
       </div>
 
-      {caption && <p className="mt-2 text-muted text-sm">{caption}</p>}
+      <div className="flex items-center mt-3 gap-2">
+        {caption && <p className="text-center text-sm text-muted">{caption}</p>}
 
-      <button
-        className="mt-3 px-4 py-2 bg-gradient-to-r from-primary to-primary-dark text-white rounded-full hover:from-primary-dark hover:to-primary transition-all duration-300 flex items-center shadow-md"
-        style={{ backgroundColor: qrCodeColor }}
-        onClick={downloadQRCode}
-      >
-        <svg
-          className="w-4 h-4 mr-2"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+        <button
+          onClick={downloadQRCode}
+          className="text-xs flex items-center gap-1 px-2 py-1 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+          style={{ color: qrCodeColor, backgroundColor: `${qrCodeColor}15` }}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-          ></path>
-        </svg>
-        Télécharger
-      </button>
+          <svg
+            className="w-3 h-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+            />
+          </svg>
+          Télécharger
+        </button>
+      </div>
     </div>
   )
 }

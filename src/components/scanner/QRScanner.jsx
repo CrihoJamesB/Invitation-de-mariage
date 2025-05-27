@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react"
-import QrScanner from "react-qr-scanner"
+import ReactQrScanner from "react-qr-scanner"
 import guestService from "../../firebase/guestService"
 import Card from "../common/Card"
 import Button from "../common/Button"
@@ -7,7 +7,7 @@ import Button from "../common/Button"
 /**
  * Composant de scanner QR code pour vérifier les invitations
  */
-const QRScanner = ({ onScanComplete }) => {
+const QrScanner = ({ onScanComplete }) => {
   const [scanning, setScanning] = useState(true)
   const [error, setError] = useState(null)
   const [result, setResult] = useState(null)
@@ -94,7 +94,7 @@ const QRScanner = ({ onScanComplete }) => {
         <Card.Body className="p-0">
           {scanning ? (
             <div className="relative">
-              <QrScanner
+              <ReactQrScanner
                 ref={scannerRef}
                 onScan={handleScan}
                 onError={handleError}
@@ -192,4 +192,4 @@ const QRScanner = ({ onScanComplete }) => {
   )
 }
 
-export default QRScanner
+export default QrScanner

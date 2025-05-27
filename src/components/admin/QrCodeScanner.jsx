@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Html5Qrcode } from "html5-qrcode"
 import guestService from "../../firebase/guestService"
 import Card from "../common/Card"
@@ -10,21 +10,42 @@ import Button from "../common/Button"
  */
 const QrCodeScanner = () => {
   const [scanning, setScanning] = useState(false)
-  const [scanResult, setScanResult] = useState(null)
   const [guestInfo, setGuestInfo] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [scanHistory, setScanHistory] = useState([])
+  const [cameras, setCameras] = useState([])
+  const [selectedCamera, setSelectedCamera] = useState("")
+  const html5QrCodeRef = useRef(null)
+  const scannerContainerRef = useRef(null)
+
+  // Récupérer la liste des caméras disponibles
+  const fetchCameras = useCallback(async () => {
+    try {
+      const devices = await Html5Qrcode.getCameras()
+      if (devices && devices.length) {
+        setCameras(devices)
+        setSelectedCamera(devices[0].id)
+      }
+    } catch (err) {
+      console.error("Erreur lors de la récupération des caméras:", err)
+    }
+  }, [])
+
+  // Charger les caméras au démarrage
+  useEffect(() => {
+    fetchCameras()
+  }, [fetchCameras])
 
   // Gestionnaire de succès du scan
-  const handleScanSuccess = async (decodedText) => {
+  const handleScanSuccess = useCallback(async (decodedText) => {
     setLoading(true)
     setError(null)
-    setScanResult(decodedText)
 
     try {
       // Récupérer les informations de l'invité depuis Firestore
       const guestId = decodedText
+      console.log("QR Code scanné avec succès:", guestId)
       const guest = await guestService.getGuestById(guestId)
 
       if (!guest) {
@@ -56,7 +77,6 @@ const QrCodeScanner = () => {
 
       // Jouer un son de succès
       try {
-        // Essayer de jouer un son
         const audio = new Audio()
         audio.src =
           "https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3"
@@ -70,54 +90,120 @@ const QrCodeScanner = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  // Fonction pour arrêter le scanner en toute sécurité
+  const stopScanner = useCallback(async () => {
+    if (html5QrCodeRef.current) {
+      try {
+        await html5QrCodeRef.current.stop()
+        html5QrCodeRef.current = null
+      } catch (err) {
+        console.error("Erreur lors de l'arrêt du scanner:", err)
+      }
+    }
+    setScanning(false)
+  }, [])
 
   // Fonction pour démarrer le scanner
-  const startScanner = () => {
-    setScanning(true)
-    setError(null)
-    setScanResult(null)
-    setGuestInfo(null)
+  const startScanner = useCallback(async () => {
+    try {
+      setScanning(true)
+      setError(null)
+      setGuestInfo(null)
 
-    const html5QrCode = new Html5Qrcode("reader")
+      // Nettoyer toute instance précédente
+      await stopScanner()
 
-    html5QrCode
-      .start(
-        { facingMode: "environment" },
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 },
-          aspectRatio: 1.0,
+      // Vérifier si le conteneur existe et a des dimensions
+      if (!scannerContainerRef.current) {
+        setError("Conteneur du scanner non trouvé.")
+        setScanning(false)
+        return
+      }
+
+      // S'assurer que le conteneur a des dimensions avant de continuer
+      const containerWidth = scannerContainerRef.current.offsetWidth
+      const containerHeight = scannerContainerRef.current.offsetHeight
+
+      if (containerWidth < 100 || containerHeight < 100) {
+        setError(
+          `Dimensions du conteneur trop petites: ${containerWidth}x${containerHeight}px`
+        )
+        setScanning(false)
+        return
+      }
+
+      console.log(
+        `Dimensions du scanner: ${containerWidth}x${containerHeight}px`
+      )
+
+      // Créer une nouvelle instance du scanner
+      html5QrCodeRef.current = new Html5Qrcode("reader", {
+        verbose: false,
+        formatsToSupport: ["QR_CODE"],
+      })
+
+      const config = {
+        fps: 10,
+        qrbox: {
+          width: Math.min(200, containerWidth - 50),
+          height: Math.min(200, containerHeight - 50),
         },
+        aspectRatio: 1.0,
+        disableFlip: false,
+        experimentalFeatures: {
+          useBarCodeDetectorIfSupported: true,
+        },
+      }
+
+      console.log("Configuration du scanner:", config)
+      console.log("Caméra sélectionnée:", selectedCamera)
+
+      // Utiliser la caméra sélectionnée ou la caméra par défaut
+      const cameraId = selectedCamera || true
+
+      await html5QrCodeRef.current.start(
+        cameraId,
+        config,
         (decodedText) => {
-          handleScanSuccess(decodedText)
-          html5QrCode.stop()
-          setScanning(false)
+          console.log("Code QR détecté:", decodedText)
+          if (html5QrCodeRef.current) {
+            html5QrCodeRef.current
+              .stop()
+              .then(() => {
+                handleScanSuccess(decodedText)
+              })
+              .catch((err) => {
+                console.error("Erreur lors de l'arrêt du scanner:", err)
+              })
+              .finally(() => {
+                setScanning(false)
+              })
+          }
         },
         (errorMessage) => {
-          // Ignorer les erreurs de scan en cours
-          console.log(errorMessage)
+          // Ignorer les erreurs de scan en cours qui sont normales
+          if (
+            !errorMessage.includes("No MultiFormat Readers were able to detect")
+          ) {
+            console.log("Erreur de scan:", errorMessage)
+          }
         }
       )
-      .catch((err) => {
-        setError(`Erreur d'initialisation de la caméra: ${err}`)
-        setScanning(false)
-      })
-  }
+    } catch (error) {
+      console.error("Erreur d'initialisation:", error)
+      setError(`Erreur lors de la préparation du scanner: ${error.message}`)
+      setScanning(false)
+    }
+  }, [handleScanSuccess, selectedCamera, stopScanner])
 
   // Nettoyer le scanner à la démonture du composant
   useEffect(() => {
     return () => {
-      if (scanning) {
-        const html5QrCode = new Html5Qrcode("reader")
-        html5QrCode
-          .stop()
-          .catch((err) =>
-            console.error("Erreur lors de l'arrêt du scanner:", err)
-          )
-      }
+      stopScanner()
     }
-  }, [scanning])
+  }, [stopScanner])
 
   return (
     <Card
@@ -130,11 +216,43 @@ const QrCodeScanner = () => {
         </h2>
       </Card.Header>
       <Card.Body className="p-4">
+        {/* Sélection de la caméra */}
+        {cameras.length > 1 && (
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-primary-dark mb-1">
+              Sélectionner une caméra:
+            </label>
+            <select
+              value={selectedCamera}
+              onChange={(e) => setSelectedCamera(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary bg-white text-primary-dark"
+              disabled={scanning}
+            >
+              {cameras.map((camera) => (
+                <option
+                  key={camera.id}
+                  value={camera.id}
+                >
+                  {camera.label || `Caméra ${camera.id.slice(0, 5)}...`}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         {/* Zone de scan */}
         <div className="mb-6">
           <div
             id="reader"
-            className={`w-full max-w-md h-64 mx-auto rounded bg-gray-100 flex items-center justify-center ${
+            ref={scannerContainerRef}
+            style={{
+              width: "100%",
+              minHeight: "256px",
+              height: "256px",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            className={`max-w-md mx-auto rounded bg-gray-100 flex items-center justify-center ${
               scanning ? "border-2 border-primary" : ""
             }`}
           >
@@ -186,7 +304,29 @@ const QrCodeScanner = () => {
                 Activer la caméra
               </Button>
             ) : (
-              <p className="text-sm text-primary">Scan en cours...</p>
+              <div className="flex flex-col items-center">
+                <p className="text-sm text-primary mb-2">Scan en cours...</p>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={stopScanner}
+                >
+                  <svg
+                    className="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Arrêter
+                </Button>
+              </div>
             )}
           </div>
         </div>

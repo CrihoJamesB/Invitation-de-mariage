@@ -1,6 +1,11 @@
 // Configuration Firebase pour l'application de mariage
 import { initializeApp } from "firebase/app"
-import { getFirestore } from "firebase/firestore"
+import {
+  enableIndexedDbPersistence,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+} from "firebase/firestore"
 import { getAuth } from "firebase/auth"
 
 const firebaseConfig = {
@@ -16,8 +21,34 @@ const firebaseConfig = {
 // Initialisation de Firebase
 const app = initializeApp(firebaseConfig)
 
-// Initialisation des services
-const db = getFirestore(app)
+// Initialisation des services avec des configurations optimisées
+// Utiliser initializeFirestore avec persistentLocalCache pour améliorer les performances
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache({
+    tabManager: persistentMultipleTabManager(),
+  }),
+})
+
+// Activer la persistance hors ligne pour que l'application fonctionne sans connexion
+// Note: Cela peut échouer dans certains navigateurs, donc utiliser try/catch
+try {
+  enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code === "failed-precondition") {
+      // Plusieurs onglets ouverts, la persistance ne peut être activée que dans un seul
+      console.warn(
+        "La persistance des données ne peut pas être activée car plusieurs onglets sont ouverts"
+      )
+    } else if (err.code === "unimplemented") {
+      // Le navigateur ne prend pas en charge la persistance
+      console.warn(
+        "Le navigateur actuel ne prend pas en charge toutes les fonctionnalités nécessaires pour la persistance des données"
+      )
+    }
+  })
+} catch (error) {
+  console.warn("Erreur lors de l'activation de la persistance:", error)
+}
+
 const auth = getAuth(app)
 
 export { db, auth }

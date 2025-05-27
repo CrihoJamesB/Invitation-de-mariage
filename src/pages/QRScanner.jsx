@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Html5QrcodeScanner } from "html5-qrcode"
 import guestService from "../firebase/guestService"
 import Button from "../components/common/Button"
@@ -9,186 +9,128 @@ import Card from "../components/common/Card"
  * Utilise html5-qrcode pour le scan via la caméra
  */
 const QRScanner = () => {
-  const [scanResult, setScanResult] = useState(null)
   const [isScanning, setIsScanning] = useState(true)
   const [guestInfo, setGuestInfo] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
+  const processQrCode = useCallback(async (decodedText) => {
+    try {
+      setLoading(true)
+      setError("")
+
+      // Extraire l'ID de l'invité du QR code (format attendu: URL avec ?id=XXX ou /invitation/ID)
+      let guestId = null
+
+      // Vérifier si c'est une URL avec un paramètre id
+      if (decodedText.includes("?id=")) {
+        const url = new URL(decodedText)
+        guestId = url.searchParams.get("id")
+      } else if (decodedText.includes("/invitation/")) {
+        // Format URL: http://domaine/invitation/ID
+        const urlParts = decodedText.split("/invitation/")
+        if (urlParts.length > 1) {
+          // Prendre la dernière partie après /invitation/
+          guestId = urlParts[1].split("?")[0] // Enlever les paramètres d'URL s'il y en a
+        }
+      } else {
+        // Si c'est juste l'ID directement
+        guestId = decodedText
+      }
+
+      if (!guestId) {
+        throw new Error("Format de QR code invalide. Aucun ID trouvé.")
+      }
+
+      // Enregistrer le scan dans Firebase et récupérer les infos de l'invité
+      const result = await guestService.recordScan(guestId, {
+        scannedBy: "admin",
+        deviceInfo: navigator.userAgent,
+      })
+
+      // Récupérer les détails de l'invité pour affichage
+      const guestDetails = await guestService.getGuestById(guestId)
+
+      if (!guestDetails) {
+        throw new Error("Invité non trouvé avec cet ID: " + guestId)
+      }
+
+      // Récupérer l'historique des scans pour cet invité
+      const scanHistory = await guestService.getGuestScans(guestId)
+
+      setGuestInfo({
+        ...guestDetails,
+        scanHistory,
+        lastScanId: result,
+      })
+    } catch (error) {
+      console.error("Erreur lors du traitement du QR code:", error)
+      setError(error.message || "Erreur lors du traitement du QR code")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
   useEffect(() => {
-    // Initialiser le scanner de QR code
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader",
-      {
-        fps: 10,
+    let scanner = null
+
+    if (isScanning) {
+      // Configuration optimisée du scanner
+      const config = {
+        fps: 5, // Réduire le nombre d'images par seconde pour économiser les ressources
         qrbox: { width: 250, height: 250 },
         rememberLastUsedCamera: true,
-      },
-      /* verbose= */ false
-    )
-
-    // Fonction appelée en cas de succès de scan
-    const onScanSuccess = async (decodedText) => {
-      // Arrêter le scanner après un succès
-      scanner.clear()
-      setIsScanning(false)
-      setScanResult(decodedText)
-
-      try {
-        setLoading(true)
-        setError("")
-
-        // Extraire l'ID de l'invité du QR code (format attendu: URL avec ?id=XXX ou /invitation/ID)
-        let guestId = null
-
-        // Vérifier si c'est une URL avec un paramètre id
-        if (decodedText.includes("?id=")) {
-          const url = new URL(decodedText)
-          guestId = url.searchParams.get("id")
-        } else if (decodedText.includes("/invitation/")) {
-          // Format URL: http://domaine/invitation/ID
-          const urlParts = decodedText.split("/invitation/")
-          if (urlParts.length > 1) {
-            // Prendre la dernière partie après /invitation/
-            guestId = urlParts[1].split("?")[0] // Enlever les paramètres d'URL s'il y en a
-          }
-        } else {
-          // Si c'est juste l'ID directement
-          guestId = decodedText
-        }
-
-        if (!guestId) {
-          throw new Error("Format de QR code invalide. Aucun ID trouvé.")
-        }
-
-        // Enregistrer le scan dans Firebase et récupérer les infos de l'invité
-        const result = await guestService.recordScan(guestId, {
-          scannedBy: "admin", // Vous pourriez utiliser l'ID de l'utilisateur connecté
-          deviceInfo: navigator.userAgent,
-        })
-
-        // Récupérer les détails de l'invité pour affichage
-        const guestDetails = await guestService.getGuestById(guestId)
-
-        if (!guestDetails) {
-          throw new Error("Invité non trouvé avec cet ID: " + guestId)
-        }
-
-        // Récupérer l'historique des scans pour cet invité
-        const scanHistory = await guestService.getGuestScans(guestId)
-
-        setGuestInfo({
-          ...guestDetails,
-          scanHistory,
-          lastScanId: result,
-        })
-      } catch (error) {
-        console.error("Erreur lors du traitement du QR code:", error)
-        setError(error.message || "Erreur lors du traitement du QR code")
-      } finally {
-        setLoading(false)
+        aspectRatio: 1.0, // Pour améliorer les performances sur mobile
+        disableFlip: true, // Désactiver le flip pour améliorer les performances
+        formatsToSupport: [0], // Format QR code uniquement (0 = QR_CODE)
       }
-    }
 
-    // Fonction en cas d'erreur de scan
-    const onScanFailure = (error) => {
-      // Ne rien faire - continuer à scanner
-      console.warn(`Erreur de scan: ${error}`)
-    }
+      // Initialiser le scanner de QR code
+      scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        config,
+        /* verbose= */ false
+      )
 
-    // Démarrer le scanner
-    scanner.render(onScanSuccess, onScanFailure)
+      // Fonction appelée en cas de succès de scan
+      const onScanSuccess = async (decodedText) => {
+        // Arrêter le scanner après un succès
+        if (scanner) {
+          scanner.clear()
+          scanner = null
+        }
+        setIsScanning(false)
+        await processQrCode(decodedText)
+      }
+
+      // Fonction en cas d'erreur de scan
+      const onScanFailure = () => {
+        // Ne rien faire - continuer à scanner
+        // Ne pas logger les erreurs pour améliorer les performances
+      }
+
+      // Démarrer le scanner
+      scanner.render(onScanSuccess, onScanFailure)
+    }
 
     // Nettoyer le scanner lors du démontage du composant
     return () => {
       if (scanner) {
         scanner.clear()
+        scanner = null
       }
     }
-  }, [])
+  }, [isScanning, processQrCode])
 
   // Réinitialiser le scanner pour un nouveau scan
-  const resetScanner = () => {
-    setScanResult(null)
+  const resetScanner = useCallback(() => {
     setGuestInfo(null)
     setError("")
     setIsScanning(true)
-
-    // Recréer le scanner
-    const scanner = new Html5QrcodeScanner(
-      "qr-reader",
-      {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-        rememberLastUsedCamera: true,
-      },
-      /* verbose= */ false
-    )
-
-    scanner.render(
-      async (decodedText) => {
-        scanner.clear()
-        setIsScanning(false)
-        setScanResult(decodedText)
-
-        try {
-          setLoading(true)
-          setError("")
-
-          // Extraire l'ID de l'invité du QR code
-          let guestId = null
-
-          if (decodedText.includes("?id=")) {
-            const url = new URL(decodedText)
-            guestId = url.searchParams.get("id")
-          } else if (decodedText.includes("/invitation/")) {
-            // Format URL: http://domaine/invitation/ID
-            const urlParts = decodedText.split("/invitation/")
-            if (urlParts.length > 1) {
-              // Prendre la dernière partie après /invitation/
-              guestId = urlParts[1].split("?")[0] // Enlever les paramètres d'URL s'il y en a
-            }
-          } else {
-            guestId = decodedText
-          }
-
-          if (!guestId) {
-            throw new Error("Format de QR code invalide. Aucun ID trouvé.")
-          }
-
-          const result = await guestService.recordScan(guestId, {
-            scannedBy: "admin",
-            deviceInfo: navigator.userAgent,
-          })
-
-          const guestDetails = await guestService.getGuestById(guestId)
-
-          if (!guestDetails) {
-            throw new Error("Invité non trouvé avec cet ID: " + guestId)
-          }
-
-          const scanHistory = await guestService.getGuestScans(guestId)
-
-          setGuestInfo({
-            ...guestDetails,
-            scanHistory,
-            lastScanId: result,
-          })
-        } catch (error) {
-          console.error("Erreur lors du traitement du QR code:", error)
-          setError(error.message || "Erreur lors du traitement du QR code")
-        } finally {
-          setLoading(false)
-        }
-      },
-      (error) => {
-        console.warn(`Erreur de scan: ${error}`)
-      }
-    )
-  }
+  }, [])
 
   // Formatter la date pour un affichage plus lisible
-  const formatDate = (timestamp) => {
+  const formatDate = useCallback((timestamp) => {
     if (!timestamp) return "N/A"
 
     // Si c'est un timestamp Firebase
@@ -217,14 +159,14 @@ const QRScanner = () => {
     }
 
     return "Format de date inconnu"
-  }
+  }, [])
 
   return (
     <div className="bg-secondary min-h-screen pb-10">
       {/* En-tête */}
       <header className="bg-primary text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">
-          <h1 className="font-elegant text-3xl">Scanner d'Invitations</h1>
+          <h1 className="font-elegant text-3xl">Scanner d&apos;Invitations</h1>
           <p className="text-white/70 mt-2">
             Scannez les QR codes des invitations pour enregistrer les arrivées
           </p>
@@ -245,7 +187,7 @@ const QRScanner = () => {
               <p className="text-muted">
                 {isScanning
                   ? "Placez le QR code devant la caméra"
-                  : "Détails de l'invitation scannée"}
+                  : "Détails de l&apos;invitation scannée"}
               </p>
             </div>
 
@@ -327,7 +269,7 @@ const QRScanner = () => {
                               <tbody className="bg-white divide-y divide-gray-200">
                                 {guestInfo.scanHistory.map((scan, index) => (
                                   <tr
-                                    key={index}
+                                    key={scan.id || index}
                                     className={
                                       scan.id === guestInfo.lastScanId
                                         ? "bg-green-50"
@@ -397,10 +339,12 @@ const QRScanner = () => {
             </h3>
             <ul className="list-disc pl-6 space-y-2 text-muted">
               <li>
-                Autorisez l'accès à la caméra lorsque le navigateur vous le
+                Autorisez l&apos;accès à la caméra lorsque le navigateur vous le
                 demande
               </li>
-              <li>Présentez le QR code de l'invitation face à la caméra</li>
+              <li>
+                Présentez le QR code de l&apos;invitation face à la caméra
+              </li>
               <li>
                 Le système détectera automatiquement le code et affichera les
                 informations

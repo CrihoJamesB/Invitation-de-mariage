@@ -11,6 +11,9 @@ import {
   where,
   addDoc,
   serverTimestamp,
+  writeBatch,
+  limit,
+  orderBy,
 } from "firebase/firestore"
 
 // Collections Firestore
@@ -21,13 +24,17 @@ const SCANS_COLLECTION = "scans"
  * Service pour gérer les invités et les scans dans Firestore
  */
 const guestService = {
-  // Synchroniser tous les invités depuis les données locales
+  // Synchroniser tous les invités depuis les données locales - Version optimisée avec batch
   async syncGuestsFromLocal(guestsData) {
     try {
-      const batch = []
+      // Utiliser les lots (batches) pour des opérations groupées plus efficaces
+      const batchSize = 500 // Limite Firestore pour les opérations par lot
+      let operationCount = 0
+      let currentBatch = writeBatch(db)
+      let batches = []
 
       Object.entries(guestsData).forEach(([groupName, groupGuests]) => {
-        groupGuests.forEach(async (guest) => {
+        groupGuests.forEach((guest) => {
           // Créer un ID unique pour chaque invité
           const guestId = this.generateGuestId(groupName, guest.name)
 
@@ -44,22 +51,42 @@ const guestService = {
             scanCount: 0,
           }
 
-          batch.push(setDoc(doc(db, GUESTS_COLLECTION, guestId), guestData))
+          // Ajouter au lot courant
+          const docRef = doc(db, GUESTS_COLLECTION, guestId)
+          currentBatch.set(docRef, guestData)
+          operationCount++
+
+          // Si on atteint la limite du lot, créer un nouveau lot
+          if (operationCount >= batchSize) {
+            batches.push(currentBatch)
+            currentBatch = writeBatch(db)
+            operationCount = 0
+          }
         })
       })
 
-      // Exécuter toutes les opérations en parallèle
-      return Promise.all(batch)
+      // Ajouter le dernier lot s'il contient des opérations
+      if (operationCount > 0) {
+        batches.push(currentBatch)
+      }
+
+      // Exécuter tous les lots en parallèle
+      return Promise.all(batches.map((batch) => batch.commit()))
     } catch (error) {
       console.error("Erreur lors de la synchronisation des invités:", error)
       throw error
     }
   },
 
-  // Récupérer tous les invités
-  async getAllGuests() {
+  // Récupérer tous les invités avec limite pour éviter les surcharges
+  async getAllGuests(maxLimit = 1000) {
     try {
-      const guestsSnapshot = await getDocs(collection(db, GUESTS_COLLECTION))
+      // Utiliser limit() pour éviter de récupérer trop de données
+      const guestsQuery = query(
+        collection(db, GUESTS_COLLECTION),
+        limit(maxLimit)
+      )
+      const guestsSnapshot = await getDocs(guestsQuery)
       return guestsSnapshot.docs.map((doc) => doc.data())
     } catch (error) {
       console.error("Erreur lors de la récupération des invités:", error)
@@ -117,8 +144,15 @@ const guestService = {
         updatedAt: serverTimestamp(),
       })
 
-      const updatedGuest = await getDoc(guestRef)
-      return updatedGuest.data()
+      // Optimisation: ne récupérer le document complet que si nécessaire
+      // Si ce n'est pas nécessaire, retourner simplement les données mises à jour
+      const updatedData = {
+        id: guestId,
+        ...updates,
+        updatedAt: new Date(), // Approximation locale pour éviter une requête supplémentaire
+      }
+
+      return updatedData
     } catch (error) {
       console.error(
         `Erreur lors de la mise à jour de l'invité ${guestId}:`,
@@ -178,13 +212,15 @@ const guestService = {
     }
   },
 
-  // Obtenir l'historique des scans pour un invité
-  async getGuestScans(guestId) {
+  // Obtenir l'historique des scans pour un invité - limité et trié
+  async getGuestScans(guestId, maxResults = 10) {
     try {
       const sanitizedGuestId = this.sanitizeFirestoreId(guestId)
       const q = query(
         collection(db, SCANS_COLLECTION),
-        where("guestId", "==", sanitizedGuestId)
+        where("guestId", "==", sanitizedGuestId),
+        orderBy("timestamp", "desc"), // Plus récent d'abord
+        limit(maxResults) // Limiter le nombre de résultats
       )
       const scansSnapshot = await getDocs(q)
       return scansSnapshot.docs.map((doc) => ({
@@ -200,14 +236,44 @@ const guestService = {
     }
   },
 
-  // Obtenir tous les scans
-  async getAllScans() {
+  // Obtenir tous les scans avec pagination
+  async getAllScans(pageSize = 20, startAfterDoc = null) {
     try {
-      const scansSnapshot = await getDocs(collection(db, SCANS_COLLECTION))
-      return scansSnapshot.docs.map((doc) => doc.data())
+      let scansQuery
+
+      if (startAfterDoc) {
+        scansQuery = query(
+          collection(db, SCANS_COLLECTION),
+          orderBy("timestamp", "desc"),
+          startAfterDoc,
+          limit(pageSize)
+        )
+      } else {
+        scansQuery = query(
+          collection(db, SCANS_COLLECTION),
+          orderBy("timestamp", "desc"),
+          limit(pageSize)
+        )
+      }
+
+      const scansSnapshot = await getDocs(scansQuery)
+
+      // Préparer les données pour la pagination
+      const lastDoc = scansSnapshot.docs[scansSnapshot.docs.length - 1]
+
+      const scans = scansSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+
+      return {
+        scans,
+        lastDoc,
+        hasMore: scansSnapshot.docs.length === pageSize,
+      }
     } catch (error) {
       console.error("Erreur lors de la récupération des scans:", error)
-      return []
+      return { scans: [], lastDoc: null, hasMore: false }
     }
   },
 
@@ -233,7 +299,7 @@ const guestService = {
     }
 
     // Nettoyer les caractères non autorisés pour les ID Firestore
-    return id.replace(/[#.\/[\]]/g, "_")
+    return id.replace(/[#.[\]/]/g, "_")
   },
 }
 

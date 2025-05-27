@@ -13,12 +13,16 @@ import Card from "../common/Card"
  * @param {Object} guest - Informations sur l'invité
  * @param {string} group - Groupe auquel appartient l'invité
  * @param {Function} onShare - Fonction appelée pour partager l'invitation
+ * @param {Function} onEdit - Fonction appelée pour éditer l'invité
+ * @param {Function} onDelete - Fonction appelée pour supprimer l'invité
  * @param {string} baseUrl - URL de base pour la génération du lien d'invitation
  */
 const GuestListItem = ({
   guest,
   group,
   onShare = () => {},
+  onEdit = () => {},
+  onDelete = () => {},
   baseUrl = window.location.origin,
 }) => {
   const [showQR, setShowQR] = useState(false)
@@ -103,6 +107,34 @@ const GuestListItem = ({
               <span className="text-muted text-sm">
                 {guest.count > 1 ? `${guest.count} personnes` : "1 personne"}
               </span>
+
+              {/* Indicateur de scan */}
+              {guest.scanned && (
+                <div className="mt-1.5 flex items-center">
+                  <span className="text-xs bg-success/20 text-success py-0.5 px-2 rounded-full flex items-center">
+                    <svg
+                      className="w-3 h-3 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    Scanné{" "}
+                    {guest.scanCount > 1 ? `(${guest.scanCount} fois)` : ""}
+                  </span>
+                  {guest.lastScan && (
+                    <span className="text-xs text-muted ml-2">
+                      {new Date(guest.lastScan.toDate()).toLocaleString()}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -194,6 +226,63 @@ const GuestListItem = ({
               }
             >
               Partager
+            </Button>
+
+            {/* Bouton Modifier */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onEdit(guest)}
+              icon={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  ></path>
+                </svg>
+              }
+            >
+              Modifier
+            </Button>
+
+            {/* Bouton Supprimer */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-danger hover:bg-danger/10"
+              onClick={() => {
+                if (
+                  window.confirm(
+                    `Voulez-vous vraiment supprimer l'invité "${guest.name}" ?`
+                  )
+                ) {
+                  onDelete(guest)
+                }
+              }}
+              icon={
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  ></path>
+                </svg>
+              }
+            >
+              Supprimer
             </Button>
           </div>
         </div>

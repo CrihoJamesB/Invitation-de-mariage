@@ -11,6 +11,7 @@ import Invitation from "./pages/Invitation"
 import GuestManagement from "./pages/GuestManagement"
 import LandingPage from "./pages/LandingPage"
 import AdminLogin from "./pages/AdminLogin"
+import ScannerPage from "./pages/ScannerPage"
 
 // Composants
 import ProtectedRoute from "./components/auth/ProtectedRoute"
@@ -62,6 +63,16 @@ const App = () => {
           element={
             <ProtectedRoute>
               <GuestManagement />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Scanner d'entrée pour le jour J (protégé) */}
+        <Route
+          path="/scanner"
+          element={
+            <ProtectedRoute>
+              <ScannerPage />
             </ProtectedRoute>
           }
         />

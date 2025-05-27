@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { guests } from "../data/guests"
 import GuestListItem from "../components/admin/GuestListItem"
 import GuestForm from "../components/admin/GuestForm"
+import QrCodeScanner from "../components/admin/QrCodeScanner"
 import Card from "../components/common/Card"
 import Button from "../components/common/Button"
 import guestService from "../firebase/guestService"
@@ -26,6 +27,7 @@ const GuestManagement = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingGuest, setEditingGuest] = useState(null)
   const [guestsData, setGuestsData] = useState([])
+  const [activeTab, setActiveTab] = useState("liste") // Nouvel état pour les onglets: 'liste' ou 'scanner'
 
   // Initialiser les statistiques et la liste filtrée au chargement
   useEffect(() => {
@@ -212,6 +214,14 @@ const GuestManagement = () => {
     setShowForm(false)
   }
 
+  // Changer d'onglet
+  const changeTab = (tab) => {
+    setActiveTab(tab)
+    if (tab === "liste") {
+      setShowForm(false)
+    }
+  }
+
   // Obtenir la liste des groupes uniques
   const groupsList = Object.keys(guests)
 
@@ -318,161 +328,226 @@ const GuestManagement = () => {
         </div>
       </div>
 
-      {/* Filtres et recherche */}
-      <div className="max-w-4xl mx-auto px-4 mt-8">
-        <Card
-          variant="default"
-          className="p-4"
-        >
-          <div className="flex flex-col md:flex-row gap-4">
-            {/* Recherche */}
-            <div className="flex-grow">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg
-                    className="w-5 h-5 text-muted"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    ></path>
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary bg-white text-primary-dark placeholder-muted"
-                  placeholder="Rechercher un invité..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Filtre par groupe */}
-            <div className="w-full md:w-1/4">
-              <select
-                className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary bg-white text-primary-dark"
-                value={selectedGroup}
-                onChange={(e) => setSelectedGroup(e.target.value)}
+      {/* Navigation par onglets */}
+      <div className="max-w-4xl mx-auto px-4 mt-8 pb-2 border-b border-gray-200">
+        <div className="flex space-x-4">
+          <button
+            onClick={() => changeTab("liste")}
+            className={`pb-2 px-1 focus:outline-none transition duration-200 ${
+              activeTab === "liste"
+                ? "text-primary border-b-2 border-primary font-semibold"
+                : "text-gray-500 hover:text-primary"
+            }`}
+          >
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <option value="">Tous les groupes</option>
-                {groupsList.map((group) => (
-                  <option
-                    key={group}
-                    value={group}
-                  >
-                    {group}
-                  </option>
-                ))}
-              </select>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                ></path>
+              </svg>
+              Liste des invités
             </div>
-
-            {/* Bouton Ajouter */}
-            <div className="w-full md:w-auto">
-              <Button
-                variant="primary"
-                className="w-full md:w-auto"
-                onClick={() => {
-                  setEditingGuest(null)
-                  setShowForm(true)
-                }}
-                icon={
-                  <svg
-                    className="w-5 h-5 mr-1"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                    ></path>
-                  </svg>
-                }
+          </button>
+          <button
+            onClick={() => changeTab("scanner")}
+            className={`pb-2 px-1 focus:outline-none transition duration-200 ${
+              activeTab === "scanner"
+                ? "text-primary border-b-2 border-primary font-semibold"
+                : "text-gray-500 hover:text-primary"
+            }`}
+          >
+            <div className="flex items-center">
+              <svg
+                className="w-5 h-5 mr-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                Ajouter un invité
-              </Button>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                ></path>
+              </svg>
+              Scanner QR Code
             </div>
-          </div>
-        </Card>
+          </button>
+        </div>
       </div>
 
-      {/* Formulaire d'ajout/modification d'invité */}
-      {showForm && (
-        <div className="max-w-4xl mx-auto px-4 mt-6">
-          <GuestForm
-            guest={editingGuest}
-            groups={groupsList}
-            onSubmit={editingGuest ? handleEditGuest : handleAddGuest}
-            onCancel={handleCancelEdit}
-          />
-        </div>
-      )}
-
-      {/* Liste des invités */}
-      <div className="max-w-4xl mx-auto px-4 mt-6">
-        <h2 className="font-elegant text-2xl text-primary-dark mb-4">
-          {filteredGuests.length}{" "}
-          {filteredGuests.length > 1 ? "invités trouvés" : "invité trouvé"}
-        </h2>
-
-        <div className="space-y-4">
-          {loading ? (
+      {activeTab === "liste" ? (
+        <>
+          {/* Filtres et recherche */}
+          <div className="max-w-4xl mx-auto px-4 mt-4">
             <Card
-              variant="flat"
-              className="p-8 text-center"
+              variant="default"
+              className="p-4"
             >
-              <p className="text-muted">Chargement des invités...</p>
-            </Card>
-          ) : (
-            <>
-              {filteredGuests.map((guest, index) => (
-                <GuestListItem
-                  key={`${guest.group}-${guest.name}-${index}`}
-                  guest={guest}
-                  group={guest.group}
-                  onShare={handleShare}
-                  onEdit={handleEditClick}
-                  onDelete={handleDeleteGuest}
-                />
-              ))}
+              <div className="flex flex-col md:flex-row gap-4">
+                {/* Recherche */}
+                <div className="flex-grow">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg
+                        className="w-5 h-5 text-muted"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary bg-white text-primary-dark placeholder-muted"
+                      placeholder="Rechercher un invité..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
 
-              {filteredGuests.length === 0 && (
+                {/* Filtre par groupe */}
+                <div className="w-full md:w-1/4">
+                  <select
+                    className="block w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-primary focus:border-primary bg-white text-primary-dark"
+                    value={selectedGroup}
+                    onChange={(e) => setSelectedGroup(e.target.value)}
+                  >
+                    <option value="">Tous les groupes</option>
+                    {groupsList.map((group) => (
+                      <option
+                        key={group}
+                        value={group}
+                      >
+                        {group}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Bouton Ajouter */}
+                <div className="w-full md:w-auto">
+                  <Button
+                    variant="primary"
+                    className="w-full md:w-auto"
+                    onClick={() => {
+                      setEditingGuest(null)
+                      setShowForm(true)
+                    }}
+                    icon={
+                      <svg
+                        className="w-5 h-5 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        ></path>
+                      </svg>
+                    }
+                  >
+                    Ajouter un invité
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </div>
+
+          {/* Formulaire d'ajout/modification d'invité */}
+          {showForm && (
+            <div className="max-w-4xl mx-auto px-4 mt-6">
+              <GuestForm
+                guest={editingGuest}
+                groups={groupsList}
+                onSubmit={editingGuest ? handleEditGuest : handleAddGuest}
+                onCancel={handleCancelEdit}
+              />
+            </div>
+          )}
+
+          {/* Liste des invités */}
+          <div className="max-w-4xl mx-auto px-4 mt-6">
+            <h2 className="font-elegant text-2xl text-primary-dark mb-4">
+              {filteredGuests.length}{" "}
+              {filteredGuests.length > 1 ? "invités trouvés" : "invité trouvé"}
+            </h2>
+
+            <div className="space-y-4">
+              {loading ? (
                 <Card
                   variant="flat"
                   className="p-8 text-center"
                 >
-                  <div className="text-muted">
-                    <svg
-                      className="w-12 h-12 mx-auto mb-4 opacity-50"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="1.5"
-                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                      ></path>
-                    </svg>
-                    <p className="text-lg font-elegant">
-                      Aucun invité ne correspond à votre recherche
-                    </p>
-                  </div>
+                  <p className="text-muted">Chargement des invités...</p>
                 </Card>
+              ) : (
+                <>
+                  {filteredGuests.map((guest, index) => (
+                    <GuestListItem
+                      key={`${guest.group}-${guest.name}-${index}`}
+                      guest={guest}
+                      group={guest.group}
+                      onShare={handleShare}
+                      onEdit={handleEditClick}
+                      onDelete={handleDeleteGuest}
+                    />
+                  ))}
+
+                  {filteredGuests.length === 0 && (
+                    <Card
+                      variant="flat"
+                      className="p-8 text-center"
+                    >
+                      <div className="text-muted">
+                        <svg
+                          className="w-12 h-12 mx-auto mb-4 opacity-50"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="1.5"
+                            d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          ></path>
+                        </svg>
+                        <p className="text-lg font-elegant">
+                          Aucun invité ne correspond à votre recherche
+                        </p>
+                      </div>
+                    </Card>
+                  )}
+                </>
               )}
-            </>
-          )}
+            </div>
+          </div>
+        </>
+      ) : (
+        // Affichage du scanner QR Code
+        <div className="max-w-4xl mx-auto px-4 mt-6">
+          <QrCodeScanner />
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { getGuestInfoById } from "../data/guests"
+import guestService from "../firebase/guestService"
 import { invitationInfo } from "../data/invitationInfo"
 
 // Composants d'invitation
@@ -24,7 +24,7 @@ const Invitation = () => {
 
   // Récupérer les informations de l'invité au chargement
   useEffect(() => {
-    const fetchGuestInfo = () => {
+    const fetchGuestInfo = async () => {
       try {
         if (!guestId) {
           setError(true)
@@ -33,7 +33,7 @@ const Invitation = () => {
         }
 
         // Récupérer les infos de l'invité à partir de l'ID dans l'URL
-        const guest = getGuestInfoById(guestId)
+        const guest = await guestService.getGuestById(guestId)
 
         if (!guest) {
           setError(true)
@@ -100,12 +100,12 @@ const Invitation = () => {
   const handleNavigationClick = (sectionId) => {
     setActiveSection(sectionId)
     const element = document.getElementById(sectionId)
-      if (element) {
-        window.scrollTo({
-          top: element.offsetTop - 60, // Ajustement pour la navigation
-          behavior: "smooth",
-        })
-      }
+    if (element) {
+      window.scrollTo({
+        top: element.offsetTop - 60, // Ajustement pour la navigation
+        behavior: "smooth",
+      })
+    }
   }
 
   // Afficher un écran de chargement
@@ -130,8 +130,8 @@ const Invitation = () => {
             className="absolute w-24 h-24 text-primary animate-spin"
             viewBox="0 0 100 100"
             fill="none"
-              stroke="currentColor"
-              strokeWidth="4"
+            stroke="currentColor"
+            strokeWidth="4"
             strokeDasharray="69 200"
           >
             <circle
@@ -147,7 +147,7 @@ const Invitation = () => {
               fill="currentColor"
             >
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
+            </svg>
           </div>
         </div>
         <p className="text-primary-dark font-elegant text-2xl animate-pulse mb-2">
@@ -201,68 +201,68 @@ const Invitation = () => {
     accueil: (
       <svg
         className="w-5 h-5 mb-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                  ></path>
-                </svg>
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+        ></path>
+      </svg>
     ),
     details: (
-                <svg
+      <svg
         className="w-5 h-5 mb-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  ></path>
-                </svg>
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+        ></path>
+      </svg>
     ),
     programme: (
-                <svg
+      <svg
         className="w-5 h-5 mb-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  ></path>
-                </svg>
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
     ),
     lieu: (
-                <svg
+      <svg
         className="w-5 h-5 mb-1"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                  ></path>
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="1.5"
-                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                  ></path>
-                </svg>
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+        ></path>
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="1.5"
+          d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+        ></path>
+      </svg>
     ),
   }
 

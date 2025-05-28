@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
+import PropTypes from "prop-types"
 import Card from "../common/Card"
 import Button from "../common/Button"
 
@@ -51,7 +52,7 @@ const GuestForm = ({ guest, groups, onSubmit, onCancel }) => {
       <form onSubmit={handleSubmit}>
         <Card.Body className="p-6">
           <h3 className="text-xl font-elegant text-primary-dark mb-4">
-            {guest ? "Modifier l'invité" : "Ajouter un invité"}
+            {guest ? "Modifier l&apos;invité" : "Ajouter un invité"}
           </h3>
 
           <div className="space-y-4">
@@ -60,7 +61,7 @@ const GuestForm = ({ guest, groups, onSubmit, onCancel }) => {
                 htmlFor="name"
                 className="block text-sm font-medium text-primary-dark mb-1"
               >
-                Nom de l'invité
+                Nom de l&apos;invité
               </label>
               <input
                 id="name"
@@ -157,6 +158,25 @@ const GuestForm = ({ guest, groups, onSubmit, onCancel }) => {
       </form>
     </Card>
   )
+}
+
+// Définir les PropTypes pour la validation des props
+GuestForm.propTypes = {
+  guest: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    group: PropTypes.string,
+    count: PropTypes.number,
+    message: PropTypes.string,
+  }),
+  groups: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+}
+
+// Valeurs par défaut
+GuestForm.defaultProps = {
+  guest: null,
 }
 
 export default GuestForm

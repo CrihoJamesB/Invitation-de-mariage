@@ -13,6 +13,7 @@ import LandingPage from "./pages/LandingPage"
 import AdminLogin from "./pages/AdminLogin"
 import ScannerPage from "./pages/ScannerPage"
 import QRScanner from "./pages/QRScanner"
+import TableView from "./pages/TableView"
 
 // Composants
 import ProtectedRoute from "./components/auth/ProtectedRoute"
@@ -92,6 +93,12 @@ const App = () => {
         <Route
           path="/invitation/:guestId"
           element={<Invitation />}
+        />
+
+        {/* Page d'affichage des informations d'une table (accessible via QR code) */}
+        <Route
+          path="/table/:tableName"
+          element={<TableView />}
         />
 
         {/* Redirection pour les routes non trouvées */}

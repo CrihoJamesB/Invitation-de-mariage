@@ -7,6 +7,7 @@ import Button from "../components/common/Button"
 import guestService from "../firebase/guestService"
 import PropTypes from "prop-types"
 import { invitationInfo } from "../data/invitationInfo"
+import TablesPdfGenerator from "../components/admin/TablesPdfGenerator"
 
 /**
  * Page d'administration pour la gestion des invités
@@ -378,6 +379,28 @@ const GuestManagement = () => {
             }
           />
         </div>
+      </div>
+
+      {/* Section de génération de PDF des tables */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-6">
+        <Card
+          variant="elegant"
+          className="p-4"
+        >
+          <div className="flex flex-col md:flex-row gap-4 items-start">
+            <div className="flex-1">
+              <h2 className="font-elegant text-xl text-primary-dark mb-2">
+                Plans de tables avec QR codes
+              </h2>
+              <p className="text-muted text-sm">
+                Générez un PDF contenant une page par table avec le nom de la
+                table, un QR code et la liste des invités. Idéal pour imprimer
+                les plans de table pour le jour J.
+              </p>
+            </div>
+            <TablesPdfGenerator />
+          </div>
+        </Card>
       </div>
 
       {/* Filtres et recherche */}

@@ -27,15 +27,21 @@ const Invitation = () => {
     const fetchGuestInfo = async () => {
       try {
         if (!guestId) {
+          console.error("Aucun ID d'invité trouvé dans l'URL")
           setError(true)
           setLoading(false)
           return
         }
 
+        console.log("Recherche de l'invité avec l'ID:", guestId)
+
         // Récupérer les infos de l'invité à partir de l'ID dans l'URL
         const guest = await guestService.getGuestById(guestId)
 
+        console.log("Résultat de la recherche:", guest)
+
         if (!guest) {
+          console.error("Invité non trouvé dans la base de données")
           setError(true)
           setLoading(false)
           return

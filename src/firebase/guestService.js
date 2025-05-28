@@ -98,11 +98,26 @@ const guestService = {
   // Récupérer un invité par son ID
   async getGuestById(guestId) {
     try {
+      console.log("Tentative de récupération de l'invité avec ID:", guestId)
+
+      // Sanitiser l'ID pour Firestore
       const sanitizedGuestId = this.sanitizeFirestoreId(guestId)
+      console.log("ID sanitisé:", sanitizedGuestId)
+
+      // Récupérer le document
       const guestDoc = await getDoc(
         doc(db, GUESTS_COLLECTION, sanitizedGuestId)
       )
-      return guestDoc.exists() ? guestDoc.data() : null
+
+      if (!guestDoc.exists()) {
+        console.log("Aucun document trouvé pour cet ID")
+        return null
+      }
+
+      // Récupérer les données et les retourner
+      const guestData = guestDoc.data()
+      console.log("Données de l'invité trouvées:", guestData)
+      return guestData
     } catch (error) {
       console.error(
         `Erreur lors de la récupération de l'invité ${guestId}:`,
@@ -279,9 +294,33 @@ const guestService = {
 
   // Générer un ID unique pour un invité
   generateGuestId(group, name) {
-    const sanitizedGroup = group.replace(/\s+/g, "-").toLowerCase()
-    const sanitizedName = name.replace(/\s+/g, "-").toLowerCase()
-    return `${sanitizedGroup}_${sanitizedName}`
+    console.log("Génération d'ID pour:", { group, name })
+
+    // Sanitisation améliorée
+    const sanitizedGroup = group
+      .trim()
+      .toLowerCase()
+      // Remplacer les espaces par des tirets
+      .replace(/\s+/g, "-")
+      // Supprimer les caractères spéciaux
+      .replace(/[^a-z0-9-]/g, "")
+      // Éviter les tirets doubles
+      .replace(/-+/g, "-")
+
+    const sanitizedName = name
+      .trim()
+      .toLowerCase()
+      // Remplacer les espaces par des tirets
+      .replace(/\s+/g, "-")
+      // Supprimer les caractères spéciaux
+      .replace(/[^a-z0-9-]/g, "")
+      // Éviter les tirets doubles
+      .replace(/-+/g, "-")
+
+    const guestId = `${sanitizedGroup}_${sanitizedName}`
+    console.log("ID généré:", guestId)
+
+    return guestId
   },
 
   // Fonction utilitaire pour sanitiser les ID pour Firestore

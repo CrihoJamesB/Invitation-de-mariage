@@ -1,6 +1,6 @@
 import { useState } from "react"
 import PropTypes from "prop-types"
-import { generateGuestId } from "../../data/guests"
+import guestService from "../../firebase/guestService"
 import { invitationInfo } from "../../data/invitationInfo"
 import Button from "../common/Button"
 import QRCode from "../common/QRCode"
@@ -30,7 +30,7 @@ const GuestListItem = ({
   const [isGenerating, setIsGenerating] = useState(false)
 
   // Génération de l'ID unique et de l'URL d'invitation
-  const guestId = generateGuestId(group, guest.name)
+  const guestId = guestService.generateGuestId(group, guest.name)
   const invitationUrl = `${baseUrl}/invitation/${guestId}`
 
   // Récupérer la couleur de la table associée au groupe (table) de l'invité
@@ -334,9 +334,33 @@ const GuestListItem = ({
                   <h4 className="font-sans text-sm font-medium text-primary-dark">
                     Lien d&apos;invitation
                   </h4>
-                  <p className="text-xs text-muted break-all mt-1">
-                    {invitationUrl}
-                  </p>
+                  <div className="flex items-center mt-1 p-2 bg-primary/5 rounded-md border border-primary/10 break-all">
+                    <p className="text-xs text-muted flex-grow">
+                      {invitationUrl}
+                    </p>
+                    <button
+                      className="ml-2 p-1 rounded-md hover:bg-primary/10 text-primary transition-colors duration-200"
+                      onClick={() => {
+                        navigator.clipboard.writeText(invitationUrl)
+                        alert("Lien d'invitation copié !")
+                      }}
+                      title="Copier le lien"
+                    >
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-2M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                        />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">

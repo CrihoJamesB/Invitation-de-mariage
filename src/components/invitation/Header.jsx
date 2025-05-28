@@ -125,13 +125,50 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             </svg>
           </div>
 
+          {/* Nom des mariés avec animation et effet élégant */}
+          <h1
+            className="font-cursive text-4xl sm:text-5xl md:text-6xl text-primary-dark mb-3 sm:mb-4 tracking-wide"
+            style={getAnimationDelay(0)}
+          >
+            {invitationInfo.couple.groom}{" "}
+            <span className="inline-block mx-1">&</span>{" "}
+            {invitationInfo.couple.bride}
+          </h1>
+
+          {/* Nom de l'invité - AJOUT D'UNE SECTION SPÉCIALE POUR LE NOM DE L'INVITÉ */}
+          {guestInfo && (
+            <div
+              className="mb-6 animate-pulse-slow"
+              style={getAnimationDelay(1)}
+            >
+              <h2 className="font-elegant text-2xl sm:text-3xl text-primary border-b-2 border-primary/30 pb-2 inline-block">
+                {guestInfo.name}
+              </h2>
+              <p className="text-muted mt-2">
+                {guestInfo.count > 1
+                  ? `${guestInfo.count} personnes`
+                  : "1 personne"}
+              </p>
+            </div>
+          )}
+
+          {/* Ligne décorative avec animation */}
+          <div
+            className={`relative h-0.5 w-24 mx-auto mb-6 overflow-hidden bg-gradient-to-r from-transparent via-primary to-transparent reveal-on-scroll ${
+              animated ? "is-revealed" : ""
+            }`}
+            style={getAnimationDelay(1)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-light to-transparent animate-shimmer"></div>
+          </div>
+
           {/* Message d'invitation avec animation progressive */}
           <div className="mb-10">
             <p
               className={`text-muted font-elegant text-sm sm:text-base tracking-wide reveal-on-scroll ${
                 animated ? "is-revealed" : ""
               }`}
-              style={getAnimationDelay(0)}
+              style={getAnimationDelay(2)}
             >
               {invitationInfo.families.groomFamily} &{" "}
               {invitationInfo.families.brideFamily}
@@ -140,7 +177,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
               className={`text-primary font-sans text-sm sm:text-base tracking-widest uppercase mt-2 reveal-on-scroll ${
                 animated ? "is-revealed" : ""
               }`}
-              style={getAnimationDelay(1)}
+              style={getAnimationDelay(3)}
             >
               VOUS INVITENT AU MARIAGE DE
             </p>
@@ -156,7 +193,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
               className={`font-cursive text-4xl sm:text-5xl md:text-6xl mb-4 select-none reveal-on-scroll ${
                 animated ? "is-revealed" : ""
               }`}
-              style={getAnimationDelay(2)}
+              style={getAnimationDelay(4)}
             >
               <span className="py-2 px-1 text-primary-dark relative">
                 {invitationInfo.couple.groom}
@@ -168,7 +205,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
               className={`flex items-center justify-center my-4 reveal-on-scroll ${
                 animated ? "is-revealed" : ""
               }`}
-              style={getAnimationDelay(3)}
+              style={getAnimationDelay(5)}
             >
               {/* Séparateur avec cœur animé */}
               <div className="h-px w-16 bg-accent/50"></div>
@@ -189,7 +226,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
               className={`font-cursive text-4xl sm:text-5xl md:text-6xl select-none reveal-on-scroll ${
                 animated ? "is-revealed" : ""
               }`}
-              style={getAnimationDelay(4)}
+              style={getAnimationDelay(6)}
             >
               <span className="py-2 px-1 text-primary-dark relative">
                 {invitationInfo.couple.bride}
@@ -203,7 +240,7 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
             className={`mb-8 py-5 px-6 mx-auto max-w-sm rounded-lg reveal-on-scroll backdrop-blur-sm bg-gradient-to-r from-white/10 via-white/20 to-white/10 shadow-elegant ${
               animated ? "is-revealed" : ""
             }`}
-            style={getAnimationDelay(5)}
+            style={getAnimationDelay(7)}
           >
             <p className="font-elegant text-xl sm:text-2xl text-primary-dark mb-1">
               Le {invitationInfo.event.date}
@@ -212,14 +249,17 @@ const Header = ({ guestInfo = null, className = "", animated = true }) => {
           </div>
 
           {/* Message personnalisé pour l'invité avec effet verre amélioré */}
-          {guestInfo && (
+          {guestInfo && guestInfo.message && (
             <div
               ref={messageRef}
-              className={`mt-10 p-6 rounded-xl mx-auto max-w-md reveal-on-scroll backdrop-blur-md bg-gradient-to-br from-white/20 to-white/10 shadow-elegant border border-white/10 transform transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
+              className={`mt-10 p-6 rounded-xl mx-auto max-w-md reveal-on-scroll backdrop-blur-md bg-gradient-to-br from-white/30 to-white/20 shadow-elegant border border-primary/20 transform transition-all duration-500 hover:-translate-y-1 hover:shadow-xl ${
                 messageIsVisible ? "is-revealed" : ""
               }`}
-              style={getAnimationDelay(6)}
+              style={getAnimationDelay(8)}
             >
+              <h3 className="font-elegant text-lg text-primary-dark mb-2">
+                Message personnalisé
+              </h3>
               <p className="font-elegant text-sm sm:text-base text-primary-dark italic relative">
                 <span className="absolute -top-4 -left-2 text-accent opacity-30 text-3xl">
                   &ldquo;

@@ -187,15 +187,71 @@ const GuestManagement = () => {
   const handleEditGuest = async (updatedGuest) => {
     setLoading(true)
     try {
-      // Mettre à jour dans Firebase
-      await guestService.updateGuest(updatedGuest.id, updatedGuest)
+      // Vérifier si le groupe ou le nom a été modifié
+      const originalGuest = guestsData.find((g) => g.id === updatedGuest.id)
+      const groupChanged =
+        originalGuest && originalGuest.group !== updatedGuest.group
+      const nameChanged =
+        originalGuest && originalGuest.name !== updatedGuest.name
 
-      // Mettre à jour les données locales
-      setGuestsData((prev) =>
-        prev.map((guest) =>
-          guest.id === updatedGuest.id ? updatedGuest : guest
+      // Créer une variable pour stocker l'invité mis à jour (avec potentiellement un nouvel ID)
+      let updatedGuestData = updatedGuest
+
+      if (groupChanged || nameChanged) {
+        console.log("Groupe ou nom modifié, création d'un nouvel ID:", {
+          oldGroup: originalGuest.group,
+          newGroup: updatedGuest.group,
+          oldName: originalGuest.name,
+          newName: updatedGuest.name,
+          oldId: updatedGuest.id,
+        })
+
+        // Générer un nouvel ID basé sur le nouveau groupe et nom
+        const newId = guestService.generateGuestId(
+          updatedGuest.group,
+          updatedGuest.name
         )
+
+        // Créer un nouvel objet invité avec le nouvel ID
+        updatedGuestData = {
+          ...updatedGuest,
+          id: newId,
+          updatedAt: new Date(),
+        }
+
+        console.log("Nouvel invité avec ID mis à jour:", updatedGuestData)
+
+        // Supprimer l'ancien document
+        await guestService.deleteGuest(updatedGuest.id)
+
+        // Créer un nouveau document avec le nouvel ID
+        await guestService.addGuest(updatedGuestData)
+
+        // Message à l'utilisateur
+        alert(
+          `L'invité a été déplacé à la table ${updatedGuest.group}. Utilisez le nouveau lien d'invitation.`
+        )
+      } else {
+        // Mise à jour normale si ni le groupe ni le nom n'a changé
+        await guestService.updateGuest(updatedGuest.id, updatedGuest)
+
+        // Message de confirmation
+        alert("Modification enregistrée avec succès.")
+      }
+
+      // Mettre à jour les données locales avec l'invité mis à jour
+      const updatedGuests = guestsData.map((guest) =>
+        guest.id === updatedGuest.id ? updatedGuestData : guest
       )
+
+      setGuestsData(updatedGuests)
+
+      // Mettre également à jour la liste filtrée
+      const updatedFilteredGuests = filteredGuests.map((guest) =>
+        guest.id === updatedGuest.id ? updatedGuestData : guest
+      )
+
+      setFilteredGuests(updatedFilteredGuests)
 
       // Fermer le formulaire
       setShowForm(false)

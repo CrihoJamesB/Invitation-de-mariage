@@ -12,7 +12,7 @@ const QRScanner = ({ onScanSuccess, isActive = true }) => {
   const qrboxSize = 250
   const qrId = "qr-reader"
 
-  // Configuration du scanner
+  // Configuration du scanne
   useEffect(() => {
     // Ne créer l'instance du scanner que s'il n'existe pas déjà
     if (!scanner && isActive) {

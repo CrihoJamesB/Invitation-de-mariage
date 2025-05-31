@@ -28,6 +28,8 @@ const GuestManagement = () => {
   const [showForm, setShowForm] = useState(false)
   const [editingGuest, setEditingGuest] = useState(null)
   const [guestsData, setGuestsData] = useState([])
+  const [showResetModal, setShowResetModal] = useState(false)
+  const [resetLoading, setResetLoading] = useState(false)
 
   // Initialiser les statistiques et la liste filtrée au chargement
   useEffect(() => {
@@ -306,6 +308,46 @@ const GuestManagement = () => {
   // Obtenir la liste des groupes uniques
   const groupsList = Object.keys(guests)
 
+  // Réinitialiser les données de scan
+  const handleResetScans = async () => {
+    setResetLoading(true)
+    try {
+      const result = await guestService.resetAllGuestScans()
+
+      // Mise à jour des données locales
+      const updatedGuests = guestsData.map((guest) => ({
+        ...guest,
+        scanned: false,
+        scanCount: 0,
+        lastScan: null,
+      }))
+
+      setGuestsData(updatedGuests)
+      setFilteredGuests(updatedGuests)
+
+      // Mise à jour des statistiques
+      setStats((prev) => ({
+        ...prev,
+        scannedGuests: 0,
+      }))
+
+      // Fermer la modale
+      setShowResetModal(false)
+
+      // Afficher un message de confirmation
+      alert(
+        `Réinitialisation effectuée avec succès!\n${result.resetCount} invités ont été réinitialisés et ${result.deletedScans} entrées de scan ont été supprimées.`
+      )
+    } catch (error) {
+      console.error("Erreur lors de la réinitialisation des scans:", error)
+      alert(
+        "Une erreur est survenue lors de la réinitialisation des scans. Veuillez réessayer."
+      )
+    } finally {
+      setResetLoading(false)
+    }
+  }
+
   return (
     <div className="bg-secondary min-h-screen pb-10">
       {/* En-tête */}
@@ -459,6 +501,49 @@ const GuestManagement = () => {
         </Card>
       </div>
 
+      {/* Section de réinitialisation des scans */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-6">
+        <Card
+          variant="elegant"
+          className="p-4 bg-red-50"
+        >
+          <div className="flex flex-col md:flex-row gap-4 items-start">
+            <div className="flex-1">
+              <h2 className="font-elegant text-xl text-red-600 mb-2">
+                Réinitialiser les données de scan
+              </h2>
+              <p className="text-red-500 text-sm">
+                Cette action effacera toutes les données de scan des invités.
+                Tous les statuts de scan seront remis à zéro et l'historique des
+                scans sera supprimé. Cette action est irréversible.
+              </p>
+            </div>
+            <Button
+              variant="danger"
+              className="whitespace-nowrap"
+              onClick={() => setShowResetModal(true)}
+              icon={
+                <svg
+                  className="w-5 h-5 mr-1"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              }
+            >
+              Réinitialiser les scans
+            </Button>
+          </div>
+        </Card>
+      </div>
+
       {/* Filtres et recherche */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 mt-6 sm:mt-8">
         <Card
@@ -554,6 +639,91 @@ const GuestManagement = () => {
             onSubmit={editingGuest ? handleEditGuest : handleAddGuest}
             onCancel={handleCancelEdit}
           />
+        </div>
+      )}
+
+      {/* Modal de confirmation pour la réinitialisation des scans */}
+      {showResetModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+          <Card
+            variant="default"
+            className="w-full max-w-md p-6"
+          >
+            <h3 className="text-xl font-elegant text-red-600 mb-4">
+              Attention !
+            </h3>
+            <div className="border-l-4 border-red-500 pl-3 py-2 bg-red-50 mb-6">
+              <p className="text-red-700 font-medium">
+                Vous êtes sur le point de réinitialiser toutes les données de
+                scan des invités.
+              </p>
+              <p className="text-red-600 mt-2 text-sm">Cette action va:</p>
+              <ul className="list-disc list-inside text-red-600 text-sm mt-1">
+                <li>Effacer l'historique de tous les scans</li>
+                <li>Remettre à zéro les compteurs de scan</li>
+                <li>Réinitialiser le statut "scanned" de tous les invités</li>
+              </ul>
+              <p className="text-red-600 font-bold mt-2 text-sm">
+                Cette action est irréversible !
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="text"
+                onClick={() => setShowResetModal(false)}
+                disabled={resetLoading}
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="danger"
+                onClick={handleResetScans}
+                loading={resetLoading}
+                icon={
+                  resetLoading ? (
+                    <svg
+                      className="animate-spin h-5 w-5 mr-2"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                  ) : (
+                    <svg
+                      className="w-5 h-5 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  )
+                }
+              >
+                {resetLoading
+                  ? "Réinitialisation..."
+                  : "Confirmer la réinitialisation"}
+              </Button>
+            </div>
+          </Card>
         </div>
       )}
 

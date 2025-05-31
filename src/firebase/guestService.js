@@ -292,6 +292,89 @@ const guestService = {
     }
   },
 
+  // Réinitialiser tous les scans des invités
+  async resetAllGuestScans() {
+    try {
+      // 1. Récupérer tous les invités
+      const guestsQuery = query(collection(db, GUESTS_COLLECTION))
+      const guestsSnapshot = await getDocs(guestsQuery)
+
+      // 2. Utiliser un batch pour optimiser les performances
+      const batchSize = 500 // Limite Firestore pour les opérations par lot
+      let operationCount = 0
+      let currentBatch = writeBatch(db)
+      let batches = []
+
+      // 3. Réinitialiser le statut de scan pour chaque invité
+      guestsSnapshot.docs.forEach((docSnapshot) => {
+        const guestRef = doc(db, GUESTS_COLLECTION, docSnapshot.id)
+        currentBatch.update(guestRef, {
+          scanned: false,
+          scanCount: 0,
+          lastScan: null,
+          updatedAt: serverTimestamp(),
+        })
+
+        operationCount++
+
+        // Si on atteint la limite du lot, créer un nouveau lot
+        if (operationCount >= batchSize) {
+          batches.push(currentBatch)
+          currentBatch = writeBatch(db)
+          operationCount = 0
+        }
+      })
+
+      // Ajouter le dernier lot s'il contient des opérations
+      if (operationCount > 0) {
+        batches.push(currentBatch)
+      }
+
+      // 4. Exécuter tous les lots
+      await Promise.all(batches.map((batch) => batch.commit()))
+
+      // 5. Supprimer tous les documents de la collection scans
+      const scansQuery = query(collection(db, SCANS_COLLECTION))
+      const scansSnapshot = await getDocs(scansQuery)
+
+      // Réinitialiser les opérations de lot
+      operationCount = 0
+      currentBatch = writeBatch(db)
+      batches = []
+
+      scansSnapshot.docs.forEach((scanDoc) => {
+        const scanRef = doc(db, SCANS_COLLECTION, scanDoc.id)
+        currentBatch.delete(scanRef)
+
+        operationCount++
+
+        // Si on atteint la limite du lot, créer un nouveau lot
+        if (operationCount >= batchSize) {
+          batches.push(currentBatch)
+          currentBatch = writeBatch(db)
+          operationCount = 0
+        }
+      })
+
+      // Ajouter le dernier lot s'il contient des opérations
+      if (operationCount > 0) {
+        batches.push(currentBatch)
+      }
+
+      // Exécuter tous les lots
+      await Promise.all(batches.map((batch) => batch.commit()))
+
+      return {
+        success: true,
+        resetCount: guestsSnapshot.size,
+        deletedScans: scansSnapshot.size,
+      }
+    } catch (error) {
+      console.error("Erreur lors de la réinitialisation des scans:", error)
+      throw error
+    }
+  },
+
   // Générer un ID unique pour un invité
   generateGuestId(group, name) {
     console.log("Génération d'ID pour:", { group, name })

@@ -1,8 +1,9 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Button from "../common/Button"
 import pdfService from "../../services/pdfService"
 import { invitationInfo } from "../../data/invitationInfo"
 import PropTypes from "prop-types"
+import guestService from "../../firebase/guestService"
 
 /**
  * Composant permettant de générer un PDF contenant les tables avec QR codes
@@ -13,6 +14,86 @@ const TablesPdfGenerator = ({ className = "" }) => {
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState(null)
   const [success, setSuccess] = useState(false)
+  const [tablesData, setTablesData] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  /**
+   * Récupère les données des tables depuis Firebase
+   */
+  useEffect(() => {
+    const fetchTablesData = async () => {
+      try {
+        setLoading(true)
+
+        // Récupérer tous les invités depuis Firebase
+        const allGuests = await guestService.getAllGuests()
+
+        if (allGuests.length === 0) {
+          console.warn(
+            "Aucun invité trouvé dans Firebase, utilisation des données statiques"
+          )
+          setTablesData(invitationInfo.tables)
+          return
+        }
+
+        // Créer une map pour regrouper les invités par table
+        const tableMap = new Map()
+
+        // Parcourir tous les invités et les regrouper par table
+        allGuests.forEach((guest) => {
+          // Extraire le nom de la table à partir de l'ID de l'invité
+          const tableName = guest.id.split("_")[0]
+
+          // Rechercher la table correspondante dans invitationInfo pour obtenir la couleur
+          const tableInfo = invitationInfo.tables.find(
+            (table) => table.name.toLowerCase() === tableName.toLowerCase()
+          )
+
+          if (!tableInfo) {
+            console.warn(
+              `Table non trouvée pour l'invité ${guest.name} (table: ${tableName})`
+            )
+            return
+          }
+
+          // Si la table n'existe pas encore dans la map, l'initialiser
+          if (!tableMap.has(tableName)) {
+            tableMap.set(tableName, {
+              name: tableInfo.name,
+              color: tableInfo.color,
+              count: 0,
+              invites: [],
+            })
+          }
+
+          // Ajouter l'invité à la table
+          const table = tableMap.get(tableName)
+          table.invites.push({
+            name: guest.name,
+            count: guest.count || 1,
+          })
+          table.count += guest.count || 1
+        })
+
+        // Convertir la map en tableau
+        const tables = Array.from(tableMap.values())
+
+        // Trier les tables par nom pour maintenir un ordre cohérent
+        tables.sort((a, b) => a.name.localeCompare(b.name))
+
+        console.log("Tables générées depuis Firebase:", tables)
+        setTablesData(tables)
+      } catch (error) {
+        console.error("Erreur lors de la récupération des tables:", error)
+        // En cas d'erreur, utiliser les données statiques comme fallback
+        setTablesData(invitationInfo.tables)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTablesData()
+  }, [])
 
   /**
    * Génère le PDF des tables et le télécharge
@@ -23,8 +104,12 @@ const TablesPdfGenerator = ({ className = "" }) => {
     setSuccess(false)
 
     try {
-      // Générer le PDF avec le service
-      const pdfBlob = await pdfService.generateTablesPDF()
+      if (tablesData.length === 0) {
+        throw new Error("Aucune donnée de table disponible")
+      }
+
+      // Générer le PDF avec le service en passant les données des tables
+      const pdfBlob = await pdfService.generateTablesPDF(tablesData)
 
       // Créer un URL pour le téléchargement
       const pdfUrl = URL.createObjectURL(pdfBlob)
@@ -80,7 +165,10 @@ const TablesPdfGenerator = ({ className = "" }) => {
                 Plan de tables avec QR codes
               </h3>
               <p className="text-xs text-muted">
-                {invitationInfo.tables.length} tables | Format PDF | A4 Paysage
+                {loading
+                  ? "Chargement des tables..."
+                  : `${tablesData.length} tables`}{" "}
+                | Format PDF | A4 Paysage
               </p>
             </div>
           </div>
@@ -103,7 +191,9 @@ const TablesPdfGenerator = ({ className = "" }) => {
               <p className="text-sm text-muted">Contenu du PDF:</p>
             </div>
             <ul className="text-xs text-muted list-disc ml-6 space-y-1">
-              <li>Une page par table ({invitationInfo.tables.length} pages)</li>
+              <li>
+                Une page par table ({loading ? "..." : tablesData.length} pages)
+              </li>
               <li>Nom de la table en grand et en couleur (Police taille 60)</li>
               <li>QR code unique scannable avec appareil photo</li>
               <li>Liste des invités pour chaque table</li>
@@ -114,10 +204,34 @@ const TablesPdfGenerator = ({ className = "" }) => {
           <Button
             variant="primary"
             onClick={handleGeneratePdf}
-            disabled={generating}
+            disabled={generating || loading}
             className="w-full flex items-center justify-center gap-2 py-2.5 font-medium transition-all transform hover:scale-[1.02] active:scale-[0.98]"
           >
-            {generating ? (
+            {loading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span>Chargement des données...</span>
+              </>
+            ) : generating ? (
               <>
                 <svg
                   className="animate-spin h-5 w-5 text-white"

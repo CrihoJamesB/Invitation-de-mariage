@@ -9,10 +9,14 @@ import qrCodeGenerator from "../utils/qrCodeGenerator"
 const pdfService = {
   /**
    * Génère un PDF contenant une page par table avec QR code et liste des invités
+   * @param {Array} customTables - Tableau de tables personnalisé (facultatif)
    * @returns {Promise<Blob>} Le fichier PDF généré
    */
-  async generateTablesPDF() {
+  async generateTablesPDF(customTables = null) {
     try {
+      // Utiliser les tables personnalisées si fournies, sinon utiliser les tables de invitationInfo
+      const tables = customTables || invitationInfo.tables
+
       // Créer un nouveau document PDF en orientation paysage
       const pdf = new jsPDF({
         orientation: "landscape",
@@ -25,16 +29,21 @@ const pdfService = {
       const pageHeight = pdf.internal.pageSize.getHeight()
 
       // Parcourir toutes les tables
-      for (let i = 0; i < invitationInfo.tables.length; i++) {
+      for (let i = 0; i < tables.length; i++) {
         // Ajouter une nouvelle page sauf pour la première table
         if (i > 0) {
           pdf.addPage()
         }
 
-        const table = invitationInfo.tables[i]
+        const table = tables[i]
 
         // Générer le contenu HTML pour la page
-        const content = await this.renderTablePage(table, i)
+        const content = await this.renderTablePage(
+          table,
+          i,
+          invitationInfo.couple,
+          invitationInfo.event.date
+        )
 
         // Convertir le contenu HTML en canvas
         const canvas = await html2canvas(content, {
@@ -64,9 +73,16 @@ const pdfService = {
    * Rend le contenu HTML d'une page de table
    * @param {Object} table Les informations de la table
    * @param {Number} index L'index de la table
+   * @param {Object} couple Informations sur le couple
+   * @param {String} eventDate Date de l'événement
    * @returns {HTMLElement} L'élément HTML contenant la page
    */
-  async renderTablePage(table, index) {
+  async renderTablePage(
+    table,
+    index,
+    couple = invitationInfo.couple,
+    eventDate = invitationInfo.event.date
+  ) {
     // Créer un conteneur pour la page
     const container = document.createElement("div")
     container.id = `table-page-${index}`
@@ -113,11 +129,9 @@ const pdfService = {
             <div style="text-align: center; margin-bottom: 15mm;">
               <p style="margin: 0; font-size: 16px; color: #8B5D33; font-weight: light;">Mariage de</p>
               <p style="margin: 0; font-size: 20px; color: #5E3A1C; font-weight: bold;">${
-                invitationInfo.couple.groom
-              } & ${invitationInfo.couple.bride}</p>
-              <p style="margin: 0; font-size: 14px; color: #8B5D33;">${
-                invitationInfo.event.date
-              }</p>
+                couple.groom
+              } & ${couple.bride}</p>
+              <p style="margin: 0; font-size: 14px; color: #8B5D33;">${eventDate}</p>
             </div>
             
             <!-- Titre de la table avec design élégant -->
@@ -231,7 +245,7 @@ const pdfService = {
 
     return container
   },
-  
+
   /**
    * Convertit une couleur hexadécimale en valeurs RGB
    * @param {string} hex Code hexadécimal de la couleur (ex: #FF0000)
@@ -239,16 +253,16 @@ const pdfService = {
    */
   hexToRgb(hex) {
     // Supprimer le # si présent
-    hex = hex.replace(/^#/, '');
-    
+    hex = hex.replace(/^#/, "")
+
     // Convertir en valeurs RGB
-    let bigint = parseInt(hex, 16);
-    let r = (bigint >> 16) & 255;
-    let g = (bigint >> 8) & 255;
-    let b = bigint & 255;
-    
-    return { r, g, b };
-  }
+    let bigint = parseInt(hex, 16)
+    let r = (bigint >> 16) & 255
+    let g = (bigint >> 8) & 255
+    let b = bigint & 255
+
+    return { r, g, b }
+  },
 }
 
 export default pdfService

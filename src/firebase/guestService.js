@@ -379,26 +379,26 @@ const guestService = {
   generateGuestId(group, name) {
     console.log("Génération d'ID pour:", { group, name })
 
-    // Sanitisation améliorée
-    const sanitizedGroup = group
-      .trim()
-      .toLowerCase()
-      // Remplacer les espaces par des tirets
-      .replace(/\s+/g, "-")
-      // Supprimer les caractères spéciaux
-      .replace(/[^a-z0-9-]/g, "")
-      // Éviter les tirets doubles
-      .replace(/-+/g, "-")
+    // Fonction pour normaliser une chaîne pour ID tout en préservant les lettres accentuées
+    const normalizeForId = (text) => {
+      // Convertir en minuscules et supprimer les espaces en début/fin
+      let result = text.trim().toLowerCase()
 
-    const sanitizedName = name
-      .trim()
-      .toLowerCase()
       // Remplacer les espaces par des tirets
-      .replace(/\s+/g, "-")
-      // Supprimer les caractères spéciaux
-      .replace(/[^a-z0-9-]/g, "")
+      result = result.replace(/\s+/g, "-")
+
+      // Remplacer les caractères dangereux pour Firebase (.#$[]/)
+      // mais garder les accents et autres caractères valides
+      result = result.replace(/[.#$[\]/]/g, "-")
+
       // Éviter les tirets doubles
-      .replace(/-+/g, "-")
+      result = result.replace(/-+/g, "-")
+
+      return result
+    }
+
+    const sanitizedGroup = normalizeForId(group)
+    const sanitizedName = normalizeForId(name)
 
     const guestId = `${sanitizedGroup}_${sanitizedName}`
     console.log("ID généré:", guestId)
